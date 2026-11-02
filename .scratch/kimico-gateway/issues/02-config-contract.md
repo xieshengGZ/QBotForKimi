@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (Walking skeleton — minimal config startup).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] Every supported section and field loads from TOML with documented defaults and overrides.
 - [ ] Wrong types, out-of-range values, invalid regular expressions, and invalid paths are all collected into one exit-code-2 error message.
