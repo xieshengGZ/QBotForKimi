@@ -4,16 +4,16 @@
 
 **Blocked by:** 04 (Recovery state machine), 11 (Mirror pipeline, echo, and batching).
 
-**Status:** in-progress
+**Status:** done
 
-- [ ] A reset request clears the batch and tracker, resets the baseline, and produces no output in that round.
-- [ ] ALIVE records liveness; DEAD/MISSING invokes recovery; UNKNOWN logs a warning and is not treated as dead.
-- [ ] A successful respawn or recreate resets the baseline, tracker, and batch.
-- [ ] Capture, overlap, stability, and batch flush are wired in the documented order.
-- [ ] `k=0` first attempts inserted-line recovery; only the configured consecutive threshold rebuilds the baseline.
-- [ ] A released stable block updates last-output time regardless of mirror state and is passed to the pipeline with the current generation.
-- [ ] The batch is flushed on quiet-window expiry even when no new lines were released.
-- [ ] A single-round exception is logged and the monitor continues to the next round.
+- [x] A reset request clears the batch and tracker, resets the baseline, and produces no output in that round.
+- [x] ALIVE records liveness; DEAD/MISSING invokes recovery; UNKNOWN logs a warning and is not treated as dead.
+- [x] A successful respawn or recreate resets the baseline, tracker, and batch.
+- [x] Capture, overlap, stability, and batch flush are wired in the documented order.
+- [x] `k=0` first attempts inserted-line recovery; only the configured consecutive threshold rebuilds the baseline.
+- [x] A released stable block updates last-output time regardless of mirror state and is passed to the pipeline with the current generation.
+- [x] The batch is flushed on quiet-window expiry even when no new lines were released.
+- [x] A single-round exception is logged and the monitor continues to the next round.
 
 ## Comments
 
@@ -32,3 +32,5 @@
 - Unfinished / assumptions:
   - `main()` still only loads config, installs signal handlers, and waits; assembling components and starting/joining the four threads remains the orchestration ticket, per this ticket's file scope.
   - A `CaptureError` is logged at WARNING and other round exceptions at ERROR with traceback; both skip the rest of the round but keep the loop alive.
+
+- 2026-11-02 W6 controller: rebased onto main (after 09), verified the branch's own `kimico_gateway/` and `tests/` trees are unchanged from the tested commit, merged `ee350d5` (feature) to main with `git merge --ff-only`. Wave-end on main: `/home/ubuntu/qq/.venv/bin/python -m pytest -q` → 350 passed; `/home/ubuntu/qq/.venv/bin/python -m compileall -q kimico_gateway` → ok. No skipped/xfailed tests, no forbidden files, no runtime dependencies.

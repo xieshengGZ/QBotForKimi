@@ -4,16 +4,16 @@
 
 **Blocked by:** 06 (Outbound bus and sender), 08 (Plain-text injection worker).
 
-**Status:** in-progress
+**Status:** done
 
-- [ ] `#mirror on`, `#mirror off`, `#status`, and `#clear` are recognized case-insensitively with arbitrary surrounding whitespace.
-- [ ] Unknown commands, missing arguments, extra arguments, and a bare `#` return the usage text and are not injected.
-- [ ] `#mirror off` sets the switch, increments the output generation, clears only the output lane, then queues the reply; the reply is not cleared.
-- [ ] `#clear` increments the generation, clears only the output lane, requests a baseline reset, then queues the reply.
-- [ ] `#status` returns the eight documented lines with the correct tmux, kimico, mirror, inbound, control, output, last-output, and uptime values.
-- [ ] A status-provider failure returns the degraded status reply instead of crashing the worker.
-- [ ] All control replies are placed in the control lane and are not affected by mirror state.
-- [ ] Copy strings match the router table byte-for-byte.
+- [x] `#mirror on`, `#mirror off`, `#status`, and `#clear` are recognized case-insensitively with arbitrary surrounding whitespace.
+- [x] Unknown commands, missing arguments, extra arguments, and a bare `#` return the usage text and are not injected.
+- [x] `#mirror off` sets the switch, increments the output generation, clears only the output lane, then queues the reply; the reply is not cleared.
+- [x] `#clear` increments the generation, clears only the output lane, requests a baseline reset, then queues the reply.
+- [x] `#status` returns the eight documented lines with the correct tmux, kimico, mirror, inbound, control, output, last-output, and uptime values.
+- [x] A status-provider failure returns the degraded status reply instead of crashing the worker.
+- [x] All control replies are placed in the control lane and are not affected by mirror state.
+- [x] Copy strings match the router table byte-for-byte.
 
 ## Comments
 
@@ -25,3 +25,5 @@
   - To keep ticket 08's "no handler, controls not wired" tests meaningful, the worker dispatches controls only when `mirror_switch.set`, `epoch.bump`, and `reset_baseline.set` are all callable; otherwise control-looking text is logged at DEBUG and dropped.
   - `format_status` formats the last-output timestamp directly with `time.localtime`; the `now_wall` argument is accepted per the documented signature but unused.
   - `#status` snapshot assembly (tmux/kimico probes, queue lengths, start time) stays with the caller; `__main__` wiring is out of scope for this ticket.
+
+- 2026-11-02 W6 controller: rebased onto main, verified the tested tree is byte-identical for `kimico_gateway/` and `tests/`, merged `b6ad7a7` (feature) to main with `git merge --ff-only`. Wave-end on main: `/home/ubuntu/qq/.venv/bin/python -m pytest -q` → 350 passed; `/home/ubuntu/qq/.venv/bin/python -m compileall -q kimico_gateway` → ok. No skipped/xfailed tests, no forbidden files, no runtime dependencies.

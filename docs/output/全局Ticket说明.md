@@ -1,15 +1,16 @@
 # 全局 Ticket 说明
 
-更新时间：2026-11-02 13:59:30
+更新时间：2026-11-02 14:04:07
 
 ## 1. 当前结论
 
-**W6 进行中：W6-1 票 09（router/input 控制指令与 #status）、W6-2 票 12（monitor loop）。两票文件面不重叠，可并行。**
+**W6 完成：09（控制指令与 #status）、12（monitor loop）已合入 main；main 全量 350 tests，compileall 通过。**
 
 - 已完成 W1–W5（main 全量 271 tests）：01 `e9f535f`、02 `e2fb5c9`、03 `e76fa79+5583007`、05 `7ec7f28`、06 `0d93c81`、04 `cbf6d7d`、07 `553d70e`、10 `a80e272`、08 `eb5b3f6`、11 `1da0a7e`。
-- W6 分支：09 `feat/09-control-commands`、12 `feat/12-monitor-loop`。
-- 冲突扫描：09 改 `router.py` + `input.py`；12 改 `__main__.py`（`run_monitor_loop`）+ 新测试。无共享文件/契约，2 窗口并行。
-- W7 候选：13（主进程接线）为大票，独占；依赖 09/12 落地。之后 14、15、16（16 为最终验收大票）。
+- W6：09 `b6ad7a7`（router 指令解析/文案/#status + input 控制副作用）、12 `ee350d5`（RuntimeState + run_monitor_loop）。两票文件面不重叠，并行落地。
+- 波次全量：`pytest -q` → 350 passed；`compileall -q kimico_gateway` 通过。W6 未改 capture 代码，Step 0 结论沿用（真实帧 60/60，p95 0.608s）。
+- W7 候选：13（主进程接线与 status provider）为大票，独占；依赖已全部满足（05/07/09/11/12）。
+- 之后：14（health/shutdown）→ 15（systemd/NapCat）→ 16（验收门禁，大票独占）。
 
 ## 2. 波次表
 
@@ -25,8 +26,8 @@
 | W4   | W4-3 | 10     | Capture, overlap, and stability | 完成 | a80e272 | 160 tests；真实帧 60/60，p95 0.608s |
 | W5   | W5-1 | 08     | Plain-text injection worker | 完成 | eb5b3f6 | 234 tests |
 | W5   | W5-2 | 11     | Mirror pipeline, echo, and batching | 完成 | 1da0a7e | 245 tests |
-| W6   | W6-1 | 09     | Control commands and status | 进行中 | feat/09-control-commands | - |
-| W6   | W6-2 | 12     | Monitor loop integration | 进行中 | feat/12-monitor-loop | - |
+| W6   | W6-1 | 09     | Control commands and status | 完成 | b6ad7a7 | 67 tests；8 条清单全勾；main 全量 350 |
+| W6   | W6-2 | 12     | Monitor loop integration | 完成 | ee350d5 | 12 tests；8 条清单全勾；main 全量 350 |
 
 ## 3. Spec/里程碑
 
@@ -34,15 +35,15 @@
 | ---- | ---- | ---- |
 | 01-runtime-foundation | 配置、状态、日志、启动骨架 | 完成（01/02/05） |
 | 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 完成（03/04） |
-| 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 进行中（07/08 完成；09 W6 进行中） |
-| 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 进行中（06/10/11 完成；12 W6 进行中） |
+| 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 完成（07/08/09） |
+| 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 完成（06/10/11/12） |
 | 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 未开始 |
 
 ## 4. 开工顺序
 
-1. **W6（进行中）**：09（`router.py` 指令解析/文案/#status + `input.py` 控制分支）、12（`__main__.py` 的 `run_monitor_loop` + 测试）。并行 2 窗口。
-2. W7：13（主进程接线）大票独占；它依赖 05/07/09/11/12。
-3. W8：14（health/shutdown）；W9：15（systemd/NapCat）；W10：16（验收门禁，大票独占）。
+1. **W7（下一波，大票独占）**：13（主进程接线与 status provider）。依赖 05/07/09/11/12 全部 done。
+2. W8：14（health/shutdown）；W9：15（systemd/NapCat，独占，涉及真实部署）；W10：16（验收门禁，大票独占）。
+3. 波次规则不变：每波最多 3 窗口，大票不与他人同波；完整测试只在波次边界跑。
 
 ## 5. 执行日志
 
@@ -76,8 +77,9 @@
 | 2026-11-02 13:56 | W5   | W5-2 | 11     | 结束 | 1da0a7e | 245 tests；9 条清单全勾；main 全量 271 |
 | 2026-11-02 13:59 | W6   | W6-1 | 09     | 开始 | feat/09-control-commands | - |
 | 2026-11-02 13:59 | W6   | W6-2 | 12     | 开始 | feat/12-monitor-loop | - |
+| 2026-11-02 14:03 | W6   | W6-1 | 09     | 结束 | b6ad7a7 | 67 tests；8 条清单全勾；树比对一致；main 全量 350 |
+| 2026-11-02 14:04 | W6   | W6-2 | 12     | 结束 | ee350d5 | 12 tests；8 条清单全勾；树比对一致；main 全量 350；compileall ok |
 
 ### 5.1 进行中
 
-- W6-1 / ticket 09：分支 `feat/09-control-commands`，worktree `.worktrees/09`，基线 main `75b16da`。
-- W6-2 / ticket 12：分支 `feat/12-monitor-loop`，worktree `.worktrees/12`，基线 main `75b16da`。
+- 无
