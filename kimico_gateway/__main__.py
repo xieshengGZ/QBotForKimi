@@ -8,7 +8,7 @@ import sys
 import threading
 
 from . import __version__
-from .config import ConfigError, load_config
+from .config import ConfigError, load_config, summarize_config
 
 DEFAULT_CONFIG_PATH = "/etc/kimico-gateway/config.toml"
 LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
@@ -35,6 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     logging.raiseExceptions = False
     log = logging.getLogger("kimico_gateway.__main__")
+    log.debug("configuration: %s", summarize_config(config))
 
     stop_event = threading.Event()
 
