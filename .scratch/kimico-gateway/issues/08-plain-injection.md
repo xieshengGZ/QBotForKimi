@@ -4,7 +4,7 @@
 
 **Blocked by:** 07 (OneBot ingress and inbound queue).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] The worker consumes the inbound queue FIFO and injects consecutive messages in arrival order.
 - [ ] Ordinary text is injected unchanged, including quotes, newlines, and leading/trailing spaces.

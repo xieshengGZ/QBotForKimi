@@ -4,7 +4,7 @@
 
 **Blocked by:** 06 (Outbound bus and sender), 10 (Capture, overlap, and stability).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] With mirror off, stable lines are dropped and no output item is queued.
 - [ ] A stale generation is dropped before filtering or batching.

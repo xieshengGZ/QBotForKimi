@@ -1,15 +1,15 @@
 # 全局 Ticket 说明
 
-更新时间：2026-11-02 13:39:54
+更新时间：2026-11-02 13:51:18
 
 ## 1. 当前结论
 
-**W1–W3 已完成（main 全量 123 tests）；W4 正在并行跑 ticket 04、07、10。**
+**W1–W4 已完成（main 全量 208 tests）；W5 正在并行跑 ticket 08、11。**
 
-- W4-1 / 04：RecoveryManager 加入 `session.py`；同时创建最小 `router.py`（仅重启通知/告警模板 + `render_template`），供 ticket 09 后续扩展。
-- W4-2 / 07：`onebot.py` HTTP 接入 + `input.py` 的 `InboundQueue`；注入 worker 留给 08。
-- W4-3 / 10：`capture.py` 按 `docs/adr/0001-redraw-aware-capture.md` 实现重绘感知差分；不得回退到 v1.1 append-only 主路径。
-- Step 0 门禁：`docs/output/spike/kimico-capture.md`（v1.2，210/210 行送达，p95 0.601s）。
+- W4：04 `cbf6d7d`（RecoveryManager + 最小 router 模板）、07 `553d70e`（OneBot ingress + InboundQueue）、10 `a80e272`（capture，ADR-0001；真实帧回放 60/60，p95 0.608s）。
+- W5-1 / 08：`input.py` 的 `inject` 与 plain-text worker；控制指令分支留给 09。08 对 mirror 类型使用 duck-typed 依赖，不 import 尚未存在的类。
+- W5-2 / 11：`mirror.py` 的 MirrorSwitch/OutputEpoch/EchoSuppressor/chunk/MirrorPipeline；不改已有 OutboundBus/sender。
+- W5 完成后 W6 候选：09（controller commands）、12（monitor loop）；13 大票随后独占。
 
 ## 2. 波次表
 
@@ -20,25 +20,27 @@
 | W3   | W3-1 | 03     | tmux session lifecycle and pane state | 完成 | e76fa79 + 5583007 | 80 tests |
 | W3   | W3-2 | 05     | Mirror state persistence | 完成 | 7ec7f28 | 71 tests |
 | W3   | W3-3 | 06     | Outbound bus and sender | 完成 | 0d93c81 | 64 tests |
-| W4   | W4-1 | 04     | Recovery state machine | 进行中 | feat/04-recovery-state-machine | 待窗口自测与控制器验收 |
-| W4   | W4-2 | 07     | OneBot ingress and inbound queue | 进行中 | feat/07-onebot-ingress | 待窗口自测与控制器验收 |
-| W4   | W4-3 | 10     | Capture, overlap, and stability | 进行中 | feat/10-capture-stability | 待窗口自测与控制器验收；遵循 ADR-0001 |
+| W4   | W4-1 | 04     | Recovery state machine | 完成 | cbf6d7d | 135 tests |
+| W4   | W4-2 | 07     | OneBot ingress and inbound queue | 完成 | 553d70e | 159 tests |
+| W4   | W4-3 | 10     | Capture, overlap, and stability | 完成 | a80e272 | 160 tests；真实帧 60/60，p95 0.608s |
+| W5   | W5-1 | 08     | Plain-text injection worker | 进行中 | feat/08-plain-injection | 待窗口自测与控制器验收 |
+| W5   | W5-2 | 11     | Mirror pipeline, echo, and batching | 进行中 | feat/11-mirror-pipeline | 待窗口自测与控制器验收 |
 
 ## 3. Spec/里程碑
 
 | Spec | 范围 | 状态 |
 | ---- | ---- | ---- |
 | 01-runtime-foundation | 配置、状态、日志、启动骨架 | 完成（01/02/05） |
-| 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 进行中（03 完成；04 在 W4） |
-| 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 进行中（07 在 W4；08/09 待做） |
-| 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 进行中（06 完成；10 在 W4；11 待做） |
+| 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 完成（03/04） |
+| 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 进行中（07 完成；08 在 W5；09 待做） |
+| 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 进行中（06/10 完成；11 在 W5；12 待做） |
 | 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 未开始 |
 
 ## 4. 开工顺序
 
-1. **W4**：04、07、10 三个窗口并行；文件面为 `session.py`/`router.py`、`onebot.py`/`input.py`、`capture.py`，互不重叠。
-2. W4 落地后：08（注入）、11（mirror pipeline）、09（router）按依赖放开；12、14、15、16 随后；大票 13/16 独占。
-3. 波次全量、部署物与真实 TUI 回归按 `docs/prd/40-build-order.md` 执行。
+1. **W5**：08（input.py）、11（mirror.py）两个窗口并行。
+2. W6：09（control commands/status）与 12（monitor loop）按依赖放开；可能需要先合并 11 再让 09 接线真实 mirror 类型。
+3. W7：13（主进程接线）大票独占；之后 14、15、16 依次；16 为最终验收大票。
 
 ## 5. 执行日志
 
@@ -63,18 +65,20 @@
 | 2026-11-02 13:40 | W4   | W4-1 | 04     | 开始 | feat/04-recovery-state-machine | - |
 | 2026-11-02 13:40 | W4   | W4-2 | 07     | 开始 | feat/07-onebot-ingress | - |
 | 2026-11-02 13:40 | W4   | W4-3 | 10     | 开始 | feat/10-capture-stability | - |
+| 2026-11-02 13:49 | W4   | W4-1 | 04     | 结束 | cbf6d7d | 135 tests；8 条清单全勾；main 全量 208 |
+| 2026-11-02 13:49 | W4   | W4-2 | 07     | 结束 | 553d70e | 159 tests；8 条清单全勾；main 全量 208 |
+| 2026-11-02 13:49 | W4   | W4-3 | 10     | 结束 | a80e272 | 160 tests；真实帧 60/60；main 全量 208 |
+| 2026-11-02 13:51 | W5   | W5-1 | 08     | 开始 | feat/08-plain-injection | - |
+| 2026-11-02 13:51 | W5   | W5-2 | 11     | 开始 | feat/11-mirror-pipeline | - |
 
 ### 5.1 进行中
 
-- **W4-1 / ticket 04**：Recovery state machine。
-  - 票：`.scratch/kimico-gateway/issues/04-recovery-state-machine.md`；Spec：`.scratch/02-tmux-session-recovery/spec.md`；PRD：`docs/prd/17-mod-session.md` §4–8、`docs/prd/13-mod-router.md` §2–3。
-  - 分支 `feat/04-recovery-state-machine`；worktree `.worktrees/04`。
-  - 验收：8 条清单（首次/启动即死 5s、单次失败计数、respawn 失败不重复计、熔断告警一次、MISSING recreate、UNKNOWN 不动作、sleep 可中断、路由模板文案）。
-- **W4-2 / ticket 07**：OneBot ingress and inbound queue。
-  - 票：`.scratch/kimico-gateway/issues/07-onebot-ingress.md`；Spec：`.scratch/03-inbound-control/spec.md`；PRD：`docs/prd/12-mod-onebot.md` §3–9、`docs/prd/14-mod-input.md` §2。
-  - 分支 `feat/07-onebot-ingress`；worktree `.worktrees/07`。
-  - 验收：8 条清单（合法事件、401、各状态码、413 close、静默丢弃、文本拼接、队列满 busy、单线程顺序）。
-- **W4-3 / ticket 10**：Capture, overlap, and stability。
-  - 票：`.scratch/kimico-gateway/issues/10-capture-stability.md`；Spec：`.scratch/04-output-mirror/spec.md`；PRD：`docs/prd/15-mod-capture.md`（§4/§6 由 ADR 取代）；决策：`docs/adr/0001-redraw-aware-capture.md`；门禁：`docs/output/spike/kimico-capture.md`。
-  - 分支 `feat/10-capture-stability`；worktree `.worktrees/10`。
-  - 验收：8 条清单 + ADR-0001（`=<session>:`、稳定前缀 + 活尾同步、半行替换、无重复、60+ 行流式、5000 行线性预算）。
+- **W5-1 / ticket 08**：Plain-text injection worker。
+  - 票：`.scratch/kimico-gateway/issues/08-plain-injection.md`；Spec：`.scratch/03-inbound-control/spec.md`；PRD：`docs/prd/14-mod-input.md` §3–§8。
+  - 分支 `feat/08-plain-injection`；worktree `.worktrees/08`。
+  - 验收：9 条清单（FIFO 注入、原文、多行单次粘贴、唯一 buffer、`##`、空/空白、NUL、失败回执、成功静默）。
+  - 注意：控制指令分支属 09；08 使用 duck-typed mirror 参数，不 import 尚未存在的 MirrorSwitch/OutputEpoch/EchoSuppressor。
+- **W5-2 / ticket 11**：Mirror pipeline, echo, and batching。
+  - 票：`.scratch/kimico-gateway/issues/11-mirror-pipeline.md`；Spec：`.scratch/04-output-mirror/spec.md`；PRD：`docs/prd/16-mod-mirror.md` §2/§7–§11。
+  - 分支 `feat/11-mirror-pipeline`；worktree `.worktrees/11`。
+  - 验收：9 条清单（开关、stale generation、过滤、行级回显、前缀、10s/50 上限、quiet/max flush、chunk、误删取舍）。
