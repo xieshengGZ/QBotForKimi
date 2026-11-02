@@ -1,0 +1,22 @@
+# NapCat 部署（Docker Compose）。
+#
+# 镜像固定到具体版本，不使用 latest；升级时显式改 tag 并先备份
+# /opt/napcat/config。若镜像仓库提供 digest，可改为
+#   image: mlikiowa/napcat-docker@sha256:<digest>
+# 以获得更强的可复现性。
+#
+# host 网络是必需的：容器内直接访问宿主 127.0.0.1:8080 上报，
+# 并在 127.0.0.1:3000 提供 OneBot HTTP API。
+# API 与上报地址都只能绑定回环，NapCat 本身不要监听 0.0.0.0。
+
+services:
+  napcat:
+    image: mlikiowa/napcat-docker:v4.8.0
+    container_name: napcat
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      ACCOUNT: "${NAPCAT_ACCOUNT:?set NAPCAT_ACCOUNT to the gateway QQ number}"
+    volumes:
+      - /opt/napcat/config:/app/napcat/config
+      - /opt/napcat/qq:/app/.config/QQ

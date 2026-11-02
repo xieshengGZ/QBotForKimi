@@ -1,0 +1,35 @@
+{
+  "network": {
+    "httpServers": [
+      {
+        "name": "kimico-gateway-http",
+        "enable": true,
+        "host": "127.0.0.1",
+        "port": 3000,
+        "secret": "REPLACE_WITH_ONEBOT_ACCESS_TOKEN",
+        "enableCors": true,
+        "enableWebsocket": false,
+        "messagePostFormat": "array",
+        "debug": false
+      }
+    ],
+    "httpSseServers": [],
+    "httpClients": [
+      {
+        "name": "kimico-gateway-report",
+        "enable": true,
+        "url": "http://127.0.0.1:8080/cq",
+        "secret": "REPLACE_WITH_SERVER_ACCESS_TOKEN",
+        "reportSelfMessage": false,
+        "messagePostFormat": "array",
+        "debug": false
+      }
+    ],
+    "websocketServers": [],
+    "websocketClients": [],
+    "plugins": []
+  },
+  "musicSignUrl": "",
+  "enableLocalFile2Url": false,
+  "parseMultMsg": false
+}
