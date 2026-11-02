@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Complete configuration contract).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] Creating a session sets the history limit before the pane is created, then enables and verifies remain-on-exit.
 - [ ] Taking over an existing session enables and verifies remain-on-exit without creating a new session.

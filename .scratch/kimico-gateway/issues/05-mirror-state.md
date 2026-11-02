@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Complete configuration contract).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A missing state file loads as mirror off and logs at INFO.
 - [ ] A valid true/false state file loads the matching mirror value.

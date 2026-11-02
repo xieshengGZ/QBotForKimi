@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Complete configuration contract).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] The bus returns a queued control message before any queued output message.
 - [ ] A full output lane drops the oldest output and appends at most one overflow notice.
