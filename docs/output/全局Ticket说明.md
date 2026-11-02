@@ -1,15 +1,16 @@
 # 全局 Ticket 说明
 
-更新时间：2026-11-02 14:05:30
+更新时间：2026-11-02 14:12:35
 
 ## 1. 当前结论
 
-**W7 进行中：13（主进程接线与 status provider）大票独占。W1–W6 已完成，main 全量 350 tests。**
+**W7 完成：13（主进程接线与 status provider）已合入 main；main 全量 364 tests，compileall 通过。**
 
-- 已完成 W1–W5（main 全量 271 tests）：01 `e9f535f`、02 `e2fb5c9`、03 `e76fa79+5583007`、05 `7ec7f28`、06 `0d93c81`、04 `cbf6d7d`、07 `553d70e`、10 `a80e272`、08 `eb5b3f6`、11 `1da0a7e`。
-- W6（完成）：09 `b6ad7a7`、12 `ee350d5`；波次全量 350 passed，compileall 通过。
-- W7：13 `feat/13-main-wiring`，独占；依赖 05/07/09/11/12 已全部 done。
-- 之后：14（health/shutdown）→ 15（systemd/NapCat，独占）→ 16（验收门禁，大票独占）。
+- 已完成 W1–W6（main 全量 350 tests）：01 `e9f535f`、02 `e2fb5c9`、03 `e76fa79+5583007`、05 `7ec7f28`、06 `0d93c81`、04 `cbf6d7d`、07 `553d70e`、10 `a80e272`、08 `eb5b3f6`、11 `1da0a7e`、09 `b6ad7a7`、12 `ee350d5`。
+- W7：13 `8bdc4e7`（启动编排、Gateway、四线程、status provider、退出码 2/3/4；健康检查与优雅停机留给 14）。
+- 波次全量：`pytest -q` → 364 passed；`compileall -q kimico_gateway` 通过。
+- W8 候选：14（health/shutdown），依赖 13 已 done，可开窗。
+- 之后：15（systemd/NapCat，独占，涉及真实部署）→ 16（验收门禁，大票独占）。
 
 ## 2. 波次表
 
@@ -27,7 +28,7 @@
 | W5   | W5-2 | 11     | Mirror pipeline, echo, and batching | 完成 | 1da0a7e | 245 tests |
 | W6   | W6-1 | 09     | Control commands and status | 完成 | b6ad7a7 | 67 tests；8 条清单全勾；main 全量 350 |
 | W6   | W6-2 | 12     | Monitor loop integration | 完成 | ee350d5 | 12 tests；8 条清单全勾；main 全量 350 |
-| W7   | W7-1 | 13     | Main process wiring and status provider | 进行中 | feat/13-main-wiring | - |
+| W7   | W7-1 | 13     | Main process wiring and status provider | 完成 | 8bdc4e7 | 14 tests；8 条清单全勾；main 全量 364 |
 
 ## 3. Spec/里程碑
 
@@ -37,12 +38,12 @@
 | 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 完成（03/04） |
 | 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 完成（07/08/09） |
 | 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 完成（06/10/11/12） |
-| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13 W7 进行中） |
+| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13 完成；14/15/16 待做） |
 
 ## 4. 开工顺序
 
-1. **W7（进行中，大票独占）**：13（主进程接线与 status provider）。依赖 05/07/09/11/12 全部 done。
-2. W8：14（health/shutdown）；W9：15（systemd/NapCat，独占，涉及真实部署）；W10：16（验收门禁，大票独占）。
+1. **W8（下一波）**：14（health/shutdown）。依赖 13 已 done；与 15/16 串行。单票即可开 1 窗口，也可与无冲突票并行（当前 frontier 仅 14）。
+2. W9：15（systemd/NapCat，独占，涉及真实部署与端口）；W10：16（验收门禁，大票独占）。
 3. 波次规则不变：每波最多 3 窗口，大票不与他人同波；完整测试只在波次边界跑。
 
 ## 5. 执行日志
@@ -80,7 +81,8 @@
 | 2026-11-02 14:03 | W6   | W6-1 | 09     | 结束 | b6ad7a7 | 67 tests；8 条清单全勾；树比对一致；main 全量 350 |
 | 2026-11-02 14:04 | W6   | W6-2 | 12     | 结束 | ee350d5 | 12 tests；8 条清单全勾；树比对一致；main 全量 350；compileall ok |
 | 2026-11-02 14:05 | W7   | W7-1 | 13     | 开始 | feat/13-main-wiring | - |
+| 2026-11-02 14:12 | W7   | W7-1 | 13     | 结束 | 8bdc4e7 | 14 tests；8 条清单全勾；树比对一致；main 全量 364；compileall ok |
 
 ### 5.1 进行中
 
-- W7-1 / ticket 13：分支 `feat/13-main-wiring`，worktree `.worktrees/13`，基线 main `f7cd668`。
+- 无
