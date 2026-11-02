@@ -4,7 +4,7 @@
 
 **Blocked by:** 06 (Outbound bus and sender), 08 (Plain-text injection worker).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] `#mirror on`, `#mirror off`, `#status`, and `#clear` are recognized case-insensitively with arbitrary surrounding whitespace.
 - [ ] Unknown commands, missing arguments, extra arguments, and a bare `#` return the usage text and are not injected.

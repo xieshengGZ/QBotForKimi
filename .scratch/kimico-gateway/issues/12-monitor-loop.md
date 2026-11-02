@@ -4,7 +4,7 @@
 
 **Blocked by:** 04 (Recovery state machine), 11 (Mirror pipeline, echo, and batching).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A reset request clears the batch and tracker, resets the baseline, and produces no output in that round.
 - [ ] ALIVE records liveness; DEAD/MISSING invokes recovery; UNKNOWN logs a warning and is not treated as dead.
