@@ -1,15 +1,14 @@
 # 全局 Ticket 说明
 
-更新时间：2026-11-02 14:18:43
+更新时间：2026-11-02 14:20:30
 
 ## 1. 当前结论
 
-**W8 完成：14（health checks and graceful shutdown）已合入 main；main 全量 370 tests，compileall 通过。**
+**W9 进行中：15（systemd and NapCat deployment）大票独占。W1–W8 已完成，main 全量 370 tests。**
 
 - 已完成 W1–W7（main 全量 364 tests）：01 `e9f535f`、02 `e2fb5c9`、03 `e76fa79+5583007`、05 `7ec7f28`、06 `0d93c81`、04 `cbf6d7d`、07 `553d70e`、10 `a80e272`、08 `eb5b3f6`、11 `1da0a7e`、09 `b6ad7a7`、12 `ee350d5`、13 `8bdc4e7`。
-- W8：14 `0258a54`（supervise 健康检查、退出码 5、停机顺序、5s 有界 join、恢复 sleep 可打断）。
-- 波次全量：`pytest -q` → 370 passed；`compileall -q kimico_gateway` 通过。
-- W9 候选：15（systemd and NapCat deployment），独占；依赖 14 已 done，涉及真实部署面。
+- W8（完成）：14 `0258a54`；波次全量 370 passed，compileall 通过。
+- W9：15 `feat/15-systemd-napcat`；依赖 14 已 done。环境：systemd 255、docker 29、sudo 可用；**端口 3000 被现有 shotsmith-web 容器占用**，NapCat 不能同时监听该端口，运行时验证受限。
 - 之后：16（验收门禁，大票独占）。
 
 ## 2. 波次表
@@ -30,6 +29,7 @@
 | W6   | W6-2 | 12     | Monitor loop integration | 完成 | ee350d5 | 12 tests；8 条清单全勾；main 全量 350 |
 | W7   | W7-1 | 13     | Main process wiring and status provider | 完成 | 8bdc4e7 | 14 tests；8 条清单全勾；main 全量 364 |
 | W8   | W8-1 | 14     | Health checks and graceful shutdown | 完成 | 0258a54 | 6 tests；7 条清单全勾；main 全量 370 |
+| W9   | W9-1 | 15     | systemd and NapCat deployment | 进行中 | feat/15-systemd-napcat | - |
 
 ## 3. Spec/里程碑
 
@@ -39,11 +39,11 @@
 | 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 完成（03/04） |
 | 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 完成（07/08/09） |
 | 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 完成（06/10/11/12） |
-| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13/14 完成；15/16 待做） |
+| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13/14 完成；15 W9 进行中；16 待做） |
 
 ## 4. 开工顺序
 
-1. **W9（下一波，独占）**：15（systemd and NapCat deployment）。依赖 14 已 done；涉及真实 systemd/NapCat/端口/部署物。
+1. **W9（进行中，大票独占）**：15（systemd and NapCat deployment）。产出 `deploy/**` 部署物，真实 systemd 验证重启 PID/权限/退出码 2，NapCat 部分受端口 3000 占用限制。
 2. W10：16（验收门禁，大票独占）。
 3. 波次规则不变：每波最多 3 窗口，大票不与他人同波；完整测试只在波次边界跑。
 
@@ -85,7 +85,8 @@
 | 2026-11-02 14:12 | W7   | W7-1 | 13     | 结束 | 8bdc4e7 | 14 tests；8 条清单全勾；树比对一致；main 全量 364；compileall ok |
 | 2026-11-02 14:13 | W8   | W8-1 | 14     | 开始 | feat/14-health-shutdown | - |
 | 2026-11-02 14:18 | W8   | W8-1 | 14     | 结束 | 0258a54 | 6 tests；7 条清单全勾；树比对一致；main 全量 370；compileall ok |
+| 2026-11-02 14:20 | W9   | W9-1 | 15     | 开始 | feat/15-systemd-napcat | - |
 
 ### 5.1 进行中
 
-- 无
+- W9-1 / ticket 15：分支 `feat/15-systemd-napcat`，worktree `.worktrees/15`，基线 main `e7b1222`。

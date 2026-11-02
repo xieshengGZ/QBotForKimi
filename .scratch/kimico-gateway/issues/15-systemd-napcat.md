@@ -4,7 +4,7 @@
 
 **Blocked by:** 14 (Health checks and graceful shutdown).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] The systemd unit uses `KillMode=process`, `Restart=on-failure`, a prevented restart on exit code 2, and start-limit settings.
 - [ ] `systemctl restart` leaves the tmux/kimico pane PID unchanged.
