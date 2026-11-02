@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] Starting with a minimal configuration logs a startup line in the standard timestamp/level/logger/message format.
 - [ ] SIGTERM and SIGINT both stop the process cleanly with exit code 0.
