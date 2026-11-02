@@ -14,6 +14,11 @@ import os
 import secrets
 import shlex
 import subprocess
+import time
+from collections.abc import Callable
+
+from .config import RecoveryConfig
+from .router import ALARM_TEXT_TEMPLATE, RESTART_NOTICE_TEMPLATE, render_template
 
 logger = logging.getLogger("kimico_gateway.session")
 
@@ -180,6 +185,201 @@ def respawn_pane(session: str, kimico_command: str) -> None:
         "respawn pane",
     )
     logger.info("respawned pane for tmux session %r", session)
+
+
+class RecoveryManager:
+    """Bounded backoff recovery for a dead pane or a missing session.
+
+    The monitor thread calls :meth:`note_alive` on every live round and
+    :meth:`note_dead_and_recover` only when the pane is confirmed ``DEAD`` or
+    the session is ``MISSING``. One attempt is settled exactly once: a process
+    that lived for ``success_reset_seconds`` clears the failure history, while
+    an early death records one failure. Reaching ``max_attempts`` failures
+    inside the sliding window halts recovery and sends one alarm.
+
+    Instances are not thread-safe and only the monitor thread uses them.
+    """
+
+    def __init__(
+        self,
+        cfg: RecoveryConfig,
+        notify: Callable[[str], None],
+        respawn: Callable[[], None],
+        recreate: Callable[[], None],
+        pane_state: Callable[[], PaneState],
+        sleep: Callable[[float], object] = time.sleep,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        self._cfg = cfg
+        self._notify = notify
+        self._respawn = respawn
+        self._recreate = recreate
+        self._pane_state = pane_state
+        self._sleep = sleep
+        self._clock = clock
+        self._failures: list[float] = []
+        self._alive_since: float | None = None
+        self._pending_attempt = False
+        self._halted = False
+        self._alarmed = False
+
+    @property
+    def halted(self) -> bool:
+        """Whether recovery stopped after too many failures in the window."""
+        return self._halted
+
+    def note_alive(self) -> None:
+        """Record a live round and reset failures after a healthy run."""
+        now = self._clock()
+        if self._alive_since is None:
+            self._alive_since = now
+        if (
+            self._failures
+            and now - self._alive_since >= self._cfg.success_reset_seconds
+        ):
+            self._failures.clear()
+            logger.info(
+                "kimico stayed alive for %ss; recovery failure count reset",
+                self._cfg.success_reset_seconds,
+            )
+
+    def note_dead_and_recover(self, state: PaneState) -> bool:
+        """Run one recovery attempt for ``DEAD`` or ``MISSING``.
+
+        Returns True only when a respawn/recreate ran and succeeded. ``UNKNOWN``
+        and any non-recoverable state are ignored without side effects.
+        """
+        if state not in (PaneState.DEAD, PaneState.MISSING):
+            logger.warning(
+                "recovery requested for pane state %s; taking no action",
+                state.name,
+            )
+            return False
+        if self._halted:
+            return False
+
+        now = self._clock()
+        success_reset = self._cfg.success_reset_seconds
+
+        if self._pending_attempt:
+            if (
+                self._alive_since is not None
+                and now - self._alive_since >= success_reset
+            ):
+                self._failures.clear()
+                logger.info(
+                    "previous recovery attempt stayed alive for %ss; "
+                    "failure count reset",
+                    success_reset,
+                )
+            else:
+                self._failures.append(now)
+                logger.warning(
+                    "previous recovery attempt died early; failure count is %d",
+                    len(self._failures),
+                )
+            self._pending_attempt = False
+            self._alive_since = None
+        elif self._alive_since is not None:
+            if now - self._alive_since >= success_reset:
+                self._failures.clear()
+                logger.info(
+                    "kimico stayed alive for %ss; failure count reset",
+                    success_reset,
+                )
+            else:
+                self._failures.append(now)
+                logger.warning(
+                    "kimico died after %ss; failure count is %d",
+                    now - self._alive_since,
+                    len(self._failures),
+                )
+            self._alive_since = None
+
+        cutoff = now - self._cfg.window_seconds
+        self._failures = [ts for ts in self._failures if ts >= cutoff]
+
+        logger.warning(
+            "detected pane %s; %d failure(s) in the last %ss",
+            state.name,
+            len(self._failures),
+            self._cfg.window_seconds,
+        )
+
+        if len(self._failures) >= self._cfg.max_attempts:
+            self._halted = True
+            if not self._alarmed:
+                self._alarmed = True
+                logger.error(
+                    "recovery halted after %d failures in %ss",
+                    len(self._failures),
+                    self._cfg.window_seconds,
+                )
+                self._notify(
+                    render_template(
+                        ALARM_TEXT_TEMPLATE,
+                        window=self._cfg.window_seconds,
+                        max=self._cfg.max_attempts,
+                    )
+                )
+            return False
+
+        attempt = len(self._failures) + 1
+        backoff = self._cfg.backoff_seconds
+        wait = backoff[min(len(self._failures), len(backoff) - 1)]
+        logger.info(
+            "recovery attempt %d/%d for pane %s; waiting %ss",
+            attempt,
+            self._cfg.max_attempts,
+            state.name,
+            wait,
+        )
+        self._notify(
+            render_template(
+                RESTART_NOTICE_TEMPLATE,
+                wait=wait,
+                attempt=attempt,
+                max=self._cfg.max_attempts,
+            )
+        )
+
+        if self._sleep(wait):
+            logger.info("recovery sleep interrupted; no recovery action taken")
+            return False
+
+        current = self._pane_state()
+        if current is PaneState.ALIVE:
+            logger.info("pane revived during recovery sleep; no action taken")
+            self._alive_since = self._clock()
+            self._pending_attempt = False
+            return False
+        if current not in (PaneState.DEAD, PaneState.MISSING):
+            logger.warning(
+                "pane state changed to %s during recovery sleep; no action taken",
+                current.name,
+            )
+            return False
+
+        try:
+            if current is PaneState.DEAD:
+                self._respawn()
+            else:
+                self._recreate()
+        except TmuxError as exc:
+            self._failures.append(self._clock())
+            self._alive_since = None
+            self._pending_attempt = False
+            logger.error("recovery action failed: %s", exc)
+            return False
+
+        self._alive_since = self._clock()
+        self._pending_attempt = True
+        logger.info(
+            "%s succeeded for pane %s",
+            "respawn" if current is PaneState.DEAD else "recreate",
+            current.name,
+        )
+        return True
 
 
 def _pane_target(session: str) -> str:
