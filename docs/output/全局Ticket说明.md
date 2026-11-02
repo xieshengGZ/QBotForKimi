@@ -1,16 +1,15 @@
 # 全局 Ticket 说明
 
-更新时间：2026-11-02 14:27:28
+更新时间：2026-11-02 14:30:10
 
 ## 1. 当前结论
 
-**W9 完成：15（systemd and NapCat deployment）已合入 main；main 全量 388 tests，compileall 通过。**
+**W10 进行中：16（acceptance suite and real-kimico gate）大票独占，最后一张票。W1–W9 已完成，main 全量 388 tests。**
 
-- 已完成 W1–W8（main 全量 370 tests）：01 `e9f535f`、02 `e2fb5c9`、03 `e76fa79+5583007`、05 `7ec7f28`、06 `0d93c81`、04 `cbf6d7d`、07 `553d70e`、10 `a80e272`、08 `eb5b3f6`、11 `1da0a7e`、09 `b6ad7a7`、12 `ee350d5`、13 `8bdc4e7`、14 `0258a54`。
-- W9：15 `5cbc25b`（`deploy/**`、真实 systemd 重启 PID 验证、权限/环境/退出码 2、NapCat 静态部署物）。
-- 波次全量：`pytest -q` → 388 passed；`compileall` 与 `bash -n` 通过。
-- 环境限制：端口 3000 被 `shotsmith-web-1` 占用，NapCat 未做运行时验证；镜像 `v4.8.0` 未联网核对 digest。已记录在 `docs/output/deploy-verification.md`。
-- W10 候选：16（acceptance suite and real-kimico gate），大票独占；依赖 15 已 done。
+- 已完成 W1–W8（main 全量 370 tests）：01–14 全部 done。
+- W9（完成）：15 `5cbc25b`；部署物 + 真实 systemd 重启 PID 验证；波次全量 388 passed。
+- W10：16 `feat/16-acceptance-gate`；依赖 15 已 done。环境限制：端口 3000 被 `shotsmith-web-1` 占用，假 NapCat 验收改用空闲端口；真实 NapCat/QQ 联调不做。
+- 完成后做最终全量回归与 Step 0 复核。
 
 ## 2. 波次表
 
@@ -31,6 +30,7 @@
 | W7   | W7-1 | 13     | Main process wiring and status provider | 完成 | 8bdc4e7 | 14 tests；8 条清单全勾；main 全量 364 |
 | W8   | W8-1 | 14     | Health checks and graceful shutdown | 完成 | 0258a54 | 6 tests；7 条清单全勾；main 全量 370 |
 | W9   | W9-1 | 15     | systemd and NapCat deployment | 完成 | 5cbc25b | 18 tests；7 条清单全勾；真实 systemd PID 不变；main 全量 388 |
+| W10  | W10-1 | 16    | Acceptance suite and real-kimico gate | 进行中 | feat/16-acceptance-gate | - |
 
 ## 3. Spec/里程碑
 
@@ -40,12 +40,12 @@
 | 02-tmux-session-recovery | tmux 会话、四态检测、恢复状态机 | 完成（03/04） |
 | 03-inbound-control | OneBot 接入、入站队列、注入、控制指令 | 完成（07/08/09） |
 | 04-output-mirror | 捕获、差分、稳定判定、回显、批处理、出站 | 完成（06/10/11/12） |
-| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13/14/15 完成；16 W10 待做） |
+| 05-orchestration-deployment | 线程编排、健康检查、systemd、NapCat、验收 | 进行中（13/14/15 完成；16 W10 进行中） |
 
 ## 4. 开工顺序
 
-1. **W10（下一波，大票独占）**：16（acceptance suite and real-kimico gate）。依赖 15 已 done；验收 1–23 以假环境为主，真实 NapCat/QQ 受端口 3000 冲突限制。
-2. 全部 16 张票闭环后做最终全量回归与 Step 0 复核。
+1. **W10（进行中，大票独占）**：16（acceptance suite and real-kimico gate）。假环境跑验收 1–17、19–23；systemd 项复验；真实 kimi 跑 5–10 分钟门禁。
+2. 16 done 后做最终全量回归、compileall、Step 0 结论复核，输出总报告。
 3. 波次规则不变：每波最多 3 窗口，大票不与他人同波；完整测试只在波次边界跑。
 
 ## 5. 执行日志
@@ -88,7 +88,8 @@
 | 2026-11-02 14:18 | W8   | W8-1 | 14     | 结束 | 0258a54 | 6 tests；7 条清单全勾；树比对一致；main 全量 370；compileall ok |
 | 2026-11-02 14:20 | W9   | W9-1 | 15     | 开始 | feat/15-systemd-napcat | - |
 | 2026-11-02 14:27 | W9   | W9-1 | 15     | 结束 | 5cbc25b | 18 tests；7 条清单全勾；真实 systemd PID 不变；main 全量 388；compileall/scripts ok |
+| 2026-11-02 14:30 | W10  | W10-1 | 16    | 开始 | feat/16-acceptance-gate | - |
 
 ### 5.1 进行中
 
-- 无
+- W10-1 / ticket 16：分支 `feat/16-acceptance-gate`，worktree `.worktrees/16`，基线 main `a38de82`。

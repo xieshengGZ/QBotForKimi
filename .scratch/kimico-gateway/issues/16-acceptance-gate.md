@@ -4,7 +4,7 @@
 
 **Blocked by:** 15 (systemd and NapCat deployment).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] The fake-kimico and fake-NapCat acceptance environment runs the ten base checks and the v1.1 supplemental checks.
 - [ ] `systemctl restart` leaves the tmux/kimico PID unchanged.
