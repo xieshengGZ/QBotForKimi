@@ -153,20 +153,47 @@ image: mlikiowa/napcat-docker:v4.8.0
 
 ### 6.2 启动容器
 
+最简单的方式：
+
+```bash
+cd /home/ubuntu/qq
+sudo ./deploy/napcat/start.sh <网关QQ号>
+sudo docker logs -f napcat     # 看二维码，扫码登录网关 QQ
+```
+
+`start.sh` 会自动：
+
+1. 创建 `/opt/napcat/config` 和 `/opt/napcat/qq`；
+2. 首次运行启动固定镜像的 `napcat` 容器；
+3. 再次运行复用已有容器（未运行则 `docker start`），不会重复创建。
+
+需要自定义时可用环境变量覆盖：
+
+```bash
+sudo NAPCAT_IMAGE=mlikiowa/napcat-docker:v4.8.0 \
+     NAPCAT_CONFIG_DIR=/opt/napcat/config \
+     ./deploy/napcat/start.sh <网关QQ号>
+```
+
+手动等价命令（不经过脚本）：
+
 ```bash
 sudo mkdir -p /opt/napcat/config /opt/napcat/qq
-export NAPCAT_ACCOUNT=<网关QQ号>
-sudo -E docker compose -f deploy/napcat/compose.yaml up -d
-sudo docker logs -f napcat
+sudo docker run -d --name napcat --restart unless-stopped \
+  --network host \
+  -v /opt/napcat/config:/app/napcat/config \
+  -v /opt/napcat/qq:/app/.config/QQ \
+  -e ACCOUNT=<网关QQ号> \
+  mlikiowa/napcat-docker:v4.8.0
 ```
 
 要点：
 
-- `network_mode: host` 是必需的，容器要直接访问宿主 `127.0.0.1:8080`
+- `--network host` 是必需的，容器要直接访问宿主 `127.0.0.1:8080`
   并提供 `127.0.0.1:3000`；
 - 配置卷 `/opt/napcat/config:/app/napcat/config` 持久化登录与 OneBot 配置；
 - `restart: unless-stopped` 让容器随机器重启；
-- 不要添加 `ports:`，也不要把 NapCat 的 HTTP 服务绑到 `0.0.0.0`。
+- 不要添加 `-p` 端口映射，也不要把 NapCat 的 HTTP 服务绑到 `0.0.0.0`。
 
 ### 6.3 登录网关 QQ
 

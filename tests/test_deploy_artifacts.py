@@ -21,6 +21,7 @@ UNIT_PATH = DEPLOY / "kimico-gateway.service"
 CONFIG_TEMPLATE = DEPLOY / "config.toml.example"
 COMPOSE_PATH = DEPLOY / "napcat" / "compose.yaml"
 ONEBOT_TEMPLATE = DEPLOY / "napcat" / "onebot11.template.json"
+NAPCAT_START = DEPLOY / "napcat" / "start.sh"
 INSTALL_SCRIPT = DEPLOY / "install.sh"
 UNINSTALL_SCRIPT = DEPLOY / "uninstall.sh"
 README = DEPLOY / "README.md"
@@ -233,7 +234,7 @@ def test_onebot_template_tokens_match_config_template() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("script", [INSTALL_SCRIPT, UNINSTALL_SCRIPT])
+@pytest.mark.parametrize("script", [INSTALL_SCRIPT, UNINSTALL_SCRIPT, NAPCAT_START])
 def test_scripts_are_valid_bash(script: Path) -> None:
     assert script.is_file()
     result = subprocess.run(
@@ -242,6 +243,18 @@ def test_scripts_are_valid_bash(script: Path) -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_napcat_start_script_is_a_simple_host_network_launcher() -> None:
+    text = _read(NAPCAT_START)
+    assert "mlikiowa/napcat-docker:v4.8.0" in text
+    assert "--network host" in text
+    assert "-v \"${CONFIG_DIR}:/app/napcat/config\"" in text
+    assert "-v \"${QQ_DIR}:/app/.config/QQ\"" in text
+    assert "docker start" in text
+    assert "ACCOUNT" in text
+    assert "--publish" not in text
+    assert re.search(r"docker run[\s\S]*?\s-p\s", text) is None
 
 
 def test_install_script_creates_directories_and_secures_config() -> None:
