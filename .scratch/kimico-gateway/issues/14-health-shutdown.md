@@ -4,7 +4,7 @@
 
 **Blocked by:** 13 (Main process wiring and status provider).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A thread that exits unexpectedly is detected within one second, logged at CRITICAL, and causes exit code 5 after cleanup.
 - [ ] SIGTERM and SIGINT stop the HTTP server and input worker before the final state save.
