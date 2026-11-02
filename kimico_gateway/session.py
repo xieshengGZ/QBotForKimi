@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import enum
 import logging
+import os
+import secrets
 import shlex
 import subprocess
 
 logger = logging.getLogger("kimico_gateway.session")
 
 TMUX_TIMEOUT_SECONDS = 5
+BOOTSTRAP_SESSION_PREFIX = "kimico-gateway-bootstrap-"
 
 
 class TmuxError(Exception):
@@ -45,15 +48,18 @@ def ensure_session(session: str, kimico_command: str, history_limit: int) -> Non
 
     Creation sets the global history limit before ``new-session`` so the pane
     is born with the configured capacity, then enables and verifies
-    ``remain-on-exit``. Takeover only enables and verifies ``remain-on-exit``;
-    an existing pane's history cannot be resized, so a lower actual limit is
-    reported as a warning.
+    ``remain-on-exit``. If no tmux server is running, a temporary bootstrap
+    session starts one first (a tmux server exits when it has no sessions),
+    and is removed afterwards. Takeover only enables and verifies
+    ``remain-on-exit``; an existing pane's history cannot be resized, so a
+    lower actual limit is reported as a warning.
 
     Raises:
         TmuxError: a tmux command failed or the resulting session does not
             have the expected options or a single window with a single pane.
     """
-    if session_exists(session):
+    probe = _run(["tmux", "has-session", "-t", f"={session}"])
+    if probe.returncode == 0:
         _set_remain_on_exit(session)
         _verify_remain_on_exit(session)
         _warn_on_low_history(session, history_limit)
@@ -64,34 +70,41 @@ def ensure_session(session: str, kimico_command: str, history_limit: int) -> Non
         return
 
     argv = _kimico_argv(kimico_command)
-    _checked(
-        [
-            "tmux",
-            "set-option",
-            "-g",
-            "history-limit",
-            str(history_limit),
-        ],
-        "set global history-limit",
-    )
-    _checked(
-        ["tmux", "new-session", "-d", "-s", session, "--", *argv],
-        "create tmux session",
-    )
-    _set_remain_on_exit(session)
-    _verify_remain_on_exit(session)
-    actual = _read_history_limit()
-    if actual != history_limit:
-        raise TmuxError(
-            f"tmux history-limit is {actual!r}, expected {history_limit}; "
-            f"the created session {session!r} did not adopt the configured value"
+    bootstrap: str | None = None
+    try:
+        if _is_no_server(probe.stderr):
+            bootstrap = _start_bootstrap_session(session)
+        _checked(
+            [
+                "tmux",
+                "set-option",
+                "-g",
+                "history-limit",
+                str(history_limit),
+            ],
+            "set global history-limit",
         )
-    _verify_single_window_pane(session)
-    logger.info(
-        "created tmux session %r with history-limit=%d and remain-on-exit=on",
-        session,
-        history_limit,
-    )
+        _checked(
+            ["tmux", "new-session", "-d", "-s", session, "--", *argv],
+            "create tmux session",
+        )
+        _set_remain_on_exit(session)
+        _verify_remain_on_exit(session)
+        actual = _read_history_limit()
+        if actual != history_limit:
+            raise TmuxError(
+                f"tmux history-limit is {actual!r}, expected {history_limit}; "
+                f"the created session {session!r} did not adopt the configured value"
+            )
+        _verify_single_window_pane(session)
+        logger.info(
+            "created tmux session %r with history-limit=%d and remain-on-exit=on",
+            session,
+            history_limit,
+        )
+    finally:
+        if bootstrap is not None:
+            _remove_bootstrap_session(bootstrap)
 
 
 def get_pane_state(session: str) -> PaneState:
@@ -178,6 +191,50 @@ def _pane_target(session: str) -> str:
     selecting the session's active window and pane.
     """
     return f"={session}:"
+
+
+def _is_no_server(stderr: str | None) -> bool:
+    text = (stderr or "").lower()
+    return "no server running" in text or "error connecting to" in text
+
+
+def _start_bootstrap_session(session: str) -> str:
+    """Start a tmux server via a uniquely named throwaway session.
+
+    tmux exits a server that has no sessions, and a global option cannot be
+    applied before a server exists. The bootstrap session keeps the server
+    alive while ``ensure_session`` sets the history limit before creating the
+    real session.
+    """
+    bootstrap = f"{BOOTSTRAP_SESSION_PREFIX}{os.getpid()}-{secrets.token_hex(4)}"
+    while bootstrap == session:
+        bootstrap = (
+            f"{BOOTSTRAP_SESSION_PREFIX}{os.getpid()}-{secrets.token_hex(4)}"
+        )
+    _checked(
+        ["tmux", "new-session", "-d", "-s", bootstrap],
+        "start tmux server with a bootstrap session",
+    )
+    logger.debug("started tmux server with bootstrap session %r", bootstrap)
+    return bootstrap
+
+
+def _remove_bootstrap_session(bootstrap: str) -> None:
+    try:
+        result = _run(["tmux", "kill-session", "-t", f"={bootstrap}"])
+    except TmuxError as exc:
+        logger.warning(
+            "failed to remove bootstrap tmux session %r: %s", bootstrap, exc
+        )
+        return
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        detail = f": {stderr}" if stderr else ""
+        logger.warning(
+            "failed to remove bootstrap tmux session %r%s", bootstrap, detail
+        )
+        return
+    logger.debug("removed bootstrap tmux session %r", bootstrap)
 
 
 def _kimico_argv(kimico_command: str) -> list[str]:

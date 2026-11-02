@@ -42,6 +42,7 @@ class FakeTmux:
         remain_on_exit: str = "on",
         session_windows: int = 1,
         window_panes: int = 1,
+        has_session_stderr: str = "",
     ) -> None:
         self.exists = exists
         self.pane_dead = pane_dead
@@ -49,6 +50,7 @@ class FakeTmux:
         self.remain_on_exit = remain_on_exit
         self.session_windows = session_windows
         self.window_panes = window_panes
+        self.has_session_stderr = has_session_stderr
         self.calls: list[tuple[list[str], dict[str, object]]] = []
         self.errors: dict[str, BaseException | int] = {}
         self.stderr = ""
@@ -66,9 +68,15 @@ class FakeTmux:
             return subprocess.CompletedProcess(args, injected, "", self.stderr)
 
         if command == "has-session":
-            return subprocess.CompletedProcess(args, 0 if self.exists else 1, "", "")
+            stderr = "" if self.exists else self.has_session_stderr
+            return subprocess.CompletedProcess(
+                args, 0 if self.exists else 1, "", stderr
+            )
         if command == "new-session":
             self.exists = True
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if command == "kill-session":
+            self.exists = False
             return subprocess.CompletedProcess(args, 0, "", "")
         if command == "set-option":
             if "history-limit" in args:
@@ -140,6 +148,8 @@ def test_ensure_create_sets_history_limit_before_new_session(
         "--model",
         "fast",
     ]
+    assert len(fake_tmux.args_for("new-session")) == 1
+    assert "kill-session" not in commands
 
 
 def test_ensure_create_enables_and_verifies_remain_on_exit(
@@ -211,6 +221,68 @@ def test_ensure_create_failure_raises_tmux_error(
     message = str(excinfo.value)
     assert "new-session" in message
     assert "duplicate session: kimico" in message
+
+
+def test_ensure_create_bootstraps_tmux_server_when_none_running(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = FakeTmux(
+        has_session_stderr="no server running on /tmp/tmux-1000/default"
+    )
+    monkeypatch.setattr(subprocess, "run", fake)
+
+    ensure_session("kimico", "kimico", 50000)
+
+    calls = [args for args, _kwargs in fake.calls]
+    kinds = [args[1] for args in calls]
+    assert kinds[0] == "has-session"
+    assert kinds[1] == "new-session"
+
+    bootstrap_args = calls[1]
+    bootstrap = bootstrap_args[bootstrap_args.index("-s") + 1]
+    assert bootstrap.startswith("kimico-gateway-bootstrap-")
+    assert bootstrap != "kimico"
+
+    assert calls[2] == [
+        "tmux",
+        "set-option",
+        "-g",
+        "history-limit",
+        "50000",
+    ]
+    assert calls[3] == [
+        "tmux",
+        "new-session",
+        "-d",
+        "-s",
+        "kimico",
+        "--",
+        "kimico",
+    ]
+    assert calls[-1] == ["tmux", "kill-session", "-t", f"={bootstrap}"]
+
+
+def test_ensure_create_cleans_bootstrap_when_setup_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = FakeTmux(
+        has_session_stderr=(
+            "error connecting to /tmp/tmux-1000/default "
+            "(No such file or directory)"
+        )
+    )
+    fake.errors["set-option"] = 1
+    fake.stderr = "invalid option"
+    monkeypatch.setattr(subprocess, "run", fake)
+
+    with pytest.raises(TmuxError):
+        ensure_session("kimico", "kimico", 50000)
+
+    bootstrap_args = fake.args_for("new-session")[0]
+    bootstrap = bootstrap_args[bootstrap_args.index("-s") + 1]
+    assert fake.args_for("kill-session") == [
+        ["tmux", "kill-session", "-t", f"={bootstrap}"]
+    ]
 
 
 def test_ensure_takeover_warns_when_history_is_below_configured(
@@ -523,6 +595,87 @@ def test_public_api_against_real_tmux(
 
             respawn_pane(session, "bash")
             _wait_for_state(session, PaneState.ALIVE)
+        finally:
+            subprocess.run(
+                [tmux, "kill-server"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+
+def test_first_start_creates_session_when_no_server_runs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tmux = shutil.which("tmux")
+    if tmux is None:
+        pytest.skip("tmux is not installed")
+
+    with INTEGRATION_LOCK.open("w") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+
+        monkeypatch.delenv("TMUX", raising=False)
+        monkeypatch.setenv("TMUX_TMPDIR", str(tmp_path))
+
+        session = f"kimico-first-{os.getpid()}-{secrets.token_hex(4)}"
+        target = f"={session}:"
+        try:
+            before = subprocess.run(
+                [tmux, "list-sessions"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            assert before.returncode != 0
+            output = (before.stdout + before.stderr).lower()
+            assert (
+                "no server running" in output or "error connecting" in output
+            ), before.stderr
+            assert session_exists(session) is False
+
+            ensure_session(session, "bash", 50000)
+
+            assert session_exists(session) is True
+            assert get_pane_state(session) is PaneState.ALIVE
+
+            global_history = subprocess.run(
+                [tmux, "show-options", "-gv", "history-limit"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            assert global_history.stdout.strip() == "50000"
+
+            pane_history = subprocess.run(
+                [
+                    tmux,
+                    "display-message",
+                    "-p",
+                    "-t",
+                    target,
+                    "#{history_limit}",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            assert pane_history.stdout.strip() == "50000"
+
+            remain = subprocess.run(
+                [tmux, "show-options", "-wv", "-t", target, "remain-on-exit"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            assert remain.stdout.strip() == "on"
+
+            names = subprocess.run(
+                [tmux, "list-sessions", "-F", "#{session_name}"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            assert names.stdout.split() == [session]
         finally:
             subprocess.run(
                 [tmux, "kill-server"],
