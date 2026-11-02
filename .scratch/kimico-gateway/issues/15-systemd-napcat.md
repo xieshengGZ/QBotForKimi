@@ -4,15 +4,15 @@
 
 **Blocked by:** 14 (Health checks and graceful shutdown).
 
-**Status:** in-progress
+**Status:** done
 
-- [ ] The systemd unit uses `KillMode=process`, `Restart=on-failure`, a prevented restart on exit code 2, and start-limit settings.
-- [ ] `systemctl restart` leaves the tmux/kimico pane PID unchanged.
-- [ ] The configuration file is owned by the service user with mode 600 and is readable by that user.
-- [ ] The service has HOME, TERM, PATH, and loopback `no_proxy` set, and an absolute kimico command or an effective PATH.
-- [ ] The NapCat container uses a pinned image version or digest, host networking, and loopback-only API/report ports.
-- [ ] OneBot is configured for array message format, matching tokens, and the documented report URL.
-- [ ] The deployment guide documents the main QQ versus gateway QQ distinction, risk, backup, upgrade, and uninstall.
+- [x] The systemd unit uses `KillMode=process`, `Restart=on-failure`, a prevented restart on exit code 2, and start-limit settings.
+- [x] `systemctl restart` leaves the tmux/kimico pane PID unchanged.
+- [x] The configuration file is owned by the service user with mode 600 and is readable by that user.
+- [x] The service has HOME, TERM, PATH, and loopback `no_proxy` set, and an absolute kimico command or an effective PATH.
+- [x] The NapCat container uses a pinned image version or digest, host networking, and loopback-only API/report ports.
+- [x] OneBot is configured for array message format, matching tokens, and the documented report URL.
+- [x] The deployment guide documents the main QQ versus gateway QQ distinction, risk, backup, upgrade, and uninstall.
 
 ## Comments
 
@@ -45,4 +45,6 @@
   - No Docker Hub network access, so `v4.8.0` could not be verified with `docker manifest inspect`; README/verification record mark it as an assumption and document digest pinning.
   - A tmux server for `ubuntu` already existed, so the service joined that server rather than starting one inside the unit cgroup. The restart/PID promise passed, but the specific "tmux server born in the gateway cgroup" branch was not isolated (no existing session was disturbed).
   - Ticket Status and acceptance checkboxes left unchanged for the controller.
+
+- 2026-11-02 W9 controller: verified the tested tree is byte-identical for `deploy/`, `kimico_gateway/`, and `tests/`, merged `5cbc25b` (feature) to main with `git merge --ff-only`. Wave-end on main: `/home/ubuntu/qq/.venv/bin/python -m pytest -q` → 388 passed; `compileall -q kimico_gateway` → ok; both deploy scripts pass `bash -n`. Controller re-checked the host after cleanup: service `inactive`/`disabled`, config `600 ubuntu:ubuntu` readable, only `kimi02`/`qq-6`/`test` tmux sessions remain, port 8080 free, `shotsmith-*` containers untouched. NapCat runtime remains blocked by the port-3000 conflict and is recorded as an environment limitation for ticket 16.
 
