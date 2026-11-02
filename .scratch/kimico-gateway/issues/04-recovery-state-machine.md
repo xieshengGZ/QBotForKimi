@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 (tmux session lifecycle and pane state).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A pane that dies after a long healthy run waits 5 seconds before the first respawn.
 - [ ] A gateway that starts with a dead pane also waits 5 seconds for the first attempt.

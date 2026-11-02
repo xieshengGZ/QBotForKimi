@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Complete configuration contract), 06 (Outbound bus and sender).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A valid event returns HTTP 200 and reaches the callback with message ID, user ID, concatenated text, and has-text state.
 - [ ] A bad or missing bearer token returns 401 and does not reach the callback.

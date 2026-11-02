@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 (Complete configuration contract).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] Capture uses a joined, history-aware tmux command with a timeout; a non-zero exit or timeout surfaces as a capture error.
 - [ ] The overlap algorithm matches a brute-force definition on random, duplicate-heavy, append, scroll, rewrite, and empty inputs.
