@@ -2,8 +2,9 @@
 
 The worker consumes events one at a time from the bounded FIFO. Ordinary text
 is pasted into the active tmux pane and submitted with one Enter; a leading
-``##`` escapes to a literal ``#``. Control-command dispatch is supplied by
-ticket 09 through the optional ``control_handler`` seam.
+``##`` escapes to a literal ``#``. Control commands are classified by
+``router.parse_command`` and executed here in the documented order, with every
+reply placed on the control lane.
 """
 
 from __future__ import annotations
@@ -14,16 +15,27 @@ import os
 import queue
 import subprocess
 import threading
+import time
 from typing import Any, Callable
 
 from .mirror import OutboundBus
 from .onebot import PrivateMessageEvent
+from .router import (
+    CLEAR_REPLY,
+    INJECT_FAIL_REPLY,
+    MIRROR_OFF_REPLY,
+    MIRROR_ON_REPLY,
+    NOT_TEXT_REPLY,
+    STATUS_FAIL_REPLY,
+    USAGE_TEXT,
+    CommandKind,
+    format_status,
+    parse_command,
+)
 
 logger = logging.getLogger("kimico_gateway.input")
 
 INJECT_TIMEOUT_SECONDS = 5.0
-NOT_TEXT_REPLY = "仅支持文本消息"
-INJECT_FAIL_REPLY = "注入失败，请稍后重试"
 
 _buffer_counter = itertools.count()
 
@@ -127,18 +139,28 @@ def run_input_worker(
 ) -> None:
     """Consume inbound events serially until ``stop_event`` is set.
 
-    ``mirror_switch``, ``epoch``, ``reset_baseline``, and ``status_provider``
-    are consumed by the control-command seam (ticket 09) and are not touched
-    by plain-text handling. When ``control_handler`` is installed, it receives
-    control-looking text and returns True when it handled the message. Without
-    a handler such text is logged and dropped instead of being injected.
+    Control commands are handled internally by ``router.parse_command``.
+    ``control_handler`` remains an optional override: when installed it is
+    consulted first, and returning False falls through to ordinary injection.
+    When the switch/epoch/reset dependencies are not wired, control-looking
+    text is logged and dropped instead of being injected.
     """
     while not stop_event.is_set():
         event = inbound.get(timeout=0.5)
         if event is None:
             continue
         try:
-            _process_event(event, bus, echo, session, control_handler)
+            _process_event(
+                event,
+                bus,
+                mirror_switch,
+                epoch,
+                echo,
+                reset_baseline,
+                status_provider,
+                session,
+                control_handler,
+            )
         except Exception:
             logger.exception("unexpected error while processing inbound event")
 
@@ -146,7 +168,11 @@ def run_input_worker(
 def _process_event(
     event: PrivateMessageEvent,
     bus: OutboundBus,
+    mirror_switch: Any,
+    epoch: Any,
     echo: Any,
+    reset_baseline: Any,
+    status_provider: Callable[[], Any],
     session: str,
     control_handler: Callable[[str], bool] | None,
 ) -> None:
@@ -164,7 +190,12 @@ def _process_event(
 
     stripped = text.lstrip()
     if stripped.startswith("#") and not stripped.startswith("##"):
-        if control_handler is None:
+        if control_handler is not None:
+            if control_handler(text):
+                return
+            _inject_text(event, bus, echo, session, text)
+            return
+        if not _controls_wired(mirror_switch, epoch, reset_baseline):
             logger.debug(
                 "control-like text dropped without handler: message_id=%d "
                 "length=%d",
@@ -172,10 +203,61 @@ def _process_event(
                 len(text),
             )
             return
-        if control_handler(text):
-            return
+        _handle_command(
+            text, bus, mirror_switch, epoch, reset_baseline, status_provider
+        )
+        return
 
     _inject_text(event, bus, echo, session, text)
+
+
+def _controls_wired(
+    mirror_switch: Any, epoch: Any, reset_baseline: Any
+) -> bool:
+    """Return True when the control side-effect dependencies are available."""
+    return (
+        callable(getattr(mirror_switch, "set", None))
+        and callable(getattr(epoch, "bump", None))
+        and callable(getattr(reset_baseline, "set", None))
+    )
+
+
+def _handle_command(
+    text: str,
+    bus: OutboundBus,
+    mirror_switch: Any,
+    epoch: Any,
+    reset_baseline: Any,
+    status_provider: Callable[[], Any],
+) -> None:
+    kind = parse_command(text)
+    if kind is CommandKind.MIRROR_ON:
+        mirror_switch.set(True)
+        bus.put_control(MIRROR_ON_REPLY)
+    elif kind is CommandKind.MIRROR_OFF:
+        mirror_switch.set(False)
+        epoch.bump()
+        bus.clear_bulk()
+        bus.put_control(MIRROR_OFF_REPLY)
+    elif kind is CommandKind.STATUS:
+        try:
+            reply = format_status(
+                status_provider(), time.monotonic(), time.time()
+            )
+        except Exception:
+            logger.exception("#status snapshot failed")
+            bus.put_control(STATUS_FAIL_REPLY)
+        else:
+            bus.put_control(reply)
+    elif kind is CommandKind.CLEAR:
+        epoch.bump()
+        bus.clear_bulk()
+        reset_baseline.set()
+        bus.put_control(CLEAR_REPLY)
+    else:
+        bus.put_control(USAGE_TEXT)
+
+    logger.info("command executed: %s", kind.name if kind else "UNKNOWN")
 
 
 def _inject_text(
