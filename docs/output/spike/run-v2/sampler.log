@@ -1,0 +1,42 @@
+{
+  "algorithm": "redraw-aware stable-prefix + live-tail sync",
+  "mode": "redraw",
+  "stable_rounds": 3,
+  "duration_s": 325.06,
+  "rounds": 1083,
+  "capture_errors": 0,
+  "fallbacks": {
+    "slide": 0,
+    "recover": 5,
+    "reset": 0,
+    "none": 1078
+  },
+  "cp": {
+    "p50": 137,
+    "p95": 281,
+    "max": 281,
+    "hist": {
+      "12+": 1082,
+      "7": 1
+    }
+  },
+  "released_total": 374,
+  "proc_ms": {
+    "p50": 3.65,
+    "p95": 5.46,
+    "max": 12.99
+  },
+  "capture_ms": {
+    "p50": 3.38,
+    "p95": 5.22,
+    "max": 12.69
+  },
+  "interval_s": {
+    "p50": 0.30000000000001137,
+    "p95": 0.30100000000000193,
+    "max": 0.3030000000000008
+  },
+  "tags_seen": 210,
+  "tags_delivered": 210,
+  "tags_lost": []
+}

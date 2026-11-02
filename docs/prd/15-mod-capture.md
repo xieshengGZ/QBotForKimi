@@ -1,5 +1,7 @@
 # 15 · 模块规约：capture.py
 
+> **2026-11-02 修订（ADR-0001）**：Step 0 真实 TUI 门禁发现 v1.1 的 `find_overlap` 主路径会在流式重绘时丢行。§4/§6 的差分与稳定器契约由 `docs/adr/0001-redraw-aware-capture.md` 取代；§3 的 capture 目标改为 `-t =<session>:`。其余章节仍有效。
+
 ## 1. 职责
 
 输出通道的前半段：`capture-pane` 抓取、快照差分、稳定判定。本模块是无状态的算法核心（状态由调用方监控线程持有），不含 mirror、过滤、切段逻辑（属 mirror.py）。

@@ -1,0 +1,2142 @@
+[
+  {
+    "t": 0.305,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 40,
+    "k1": 40,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 40,
+    "cs": 40,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 40
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 0.608,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 40,
+    "k1": 40,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 40,
+    "cs": 40,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 40
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 0.911,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 40,
+    "k1": 40,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 40,
+    "cs": 40,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 40
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 1.215,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 40,
+    "k1": 40,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 40,
+    "cs": 40,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 40
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 1.518,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 40,
+    "k1": 40,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 40,
+    "cs": 40,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 40
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 2.628,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 4,
+    "prefix_eq": false,
+    "cp": 7,
+    "cs": 13,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "insert",
+        0,
+        4
+      ],
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "delete",
+        4,
+        0
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 22,
+        "b": 26,
+        "size": 14
+      },
+      {
+        "a": 8,
+        "b": 8,
+        "size": 10
+      },
+      {
+        "a": 0,
+        "b": 0,
+        "size": 7
+      },
+      {
+        "a": 18,
+        "b": 22,
+        "size": 3
+      }
+    ],
+    "prev_text_at_cp": " │  Session:                                                                                                          │",
+    "cur_text_at_cp": " │  Session:   session_a6822cb5-fbf0-4a43-98ab-21e648f4cf43                                                           │",
+    "prev_text_at_end_cs": "",
+    "cur_text_at_end_cs": "                                                                                                     context: 0% (0/1M)"
+  },
+  {
+    "t": 2.936,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 21,
+    "cs": 18,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 21
+      },
+      {
+        "a": 22,
+        "b": 22,
+        "size": 18
+      }
+    ],
+    "prev_text_at_cp": "  🌒 · Tip: /tasks to check progress and status for background tasks                                                   ",
+    "cur_text_at_cp": "  🌔 · Tip: /tasks to check progress and status for background tasks                                                   ",
+    "prev_text_at_end_cs": "  🌒 · Tip: /tasks to check progress and status for background tasks                                                   ",
+    "cur_text_at_end_cs": "  🌔 · Tip: /tasks to check progress and status for background tasks                                                   "
+  },
+  {
+    "t": 3.239,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 21,
+    "cs": 9,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        5
+      ],
+      [
+        "delete",
+        4,
+        0
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 21
+      },
+      {
+        "a": 22,
+        "b": 26,
+        "size": 14
+      }
+    ],
+    "prev_text_at_cp": "  🌔 · Tip: /tasks to check progress and status for background tasks                                                   ",
+    "cur_text_at_cp": " ⠸ thinking…",
+    "prev_text_at_end_cs": "",
+    "cur_text_at_end_cs": "                                                                                                     context: 0% (0/1M)"
+  },
+  {
+    "t": 3.543,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 21,
+    "cs": 14,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 21
+      },
+      {
+        "a": 26,
+        "b": 26,
+        "size": 14
+      },
+      {
+        "a": 22,
+        "b": 22,
+        "size": 1
+      },
+      {
+        "a": 24,
+        "b": 24,
+        "size": 1
+      }
+    ],
+    "prev_text_at_cp": " ⠸ thinking…",
+    "cur_text_at_cp": " ⠧ thinking…",
+    "prev_text_at_end_cs": "  ⠸ Working… · Tip: /goal for multi-step work with a clear finish line                                                 ",
+    "cur_text_at_end_cs": "  ⠧ Working… · Tip: /goal for multi-step work with a clear finish line                                                 "
+  },
+  {
+    "t": 3.846,
+    "lens": [
+      40,
+      40
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 21,
+    "cs": 14,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "replace",
+        1,
+        1
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 21
+      },
+      {
+        "a": 26,
+        "b": 26,
+        "size": 14
+      },
+      {
+        "a": 22,
+        "b": 22,
+        "size": 1
+      },
+      {
+        "a": 24,
+        "b": 24,
+        "size": 1
+      }
+    ],
+    "prev_text_at_cp": " ⠧ thinking…",
+    "cur_text_at_cp": " ⠋ thinking…",
+    "prev_text_at_end_cs": "  ⠧ Working… · Tip: /goal for multi-step work with a clear finish line                                                 ",
+    "cur_text_at_end_cs": "  ⠙ Working… · Tip: /goal for multi-step work with a clear finish line                                                 "
+  },
+  {
+    "t": 4.149,
+    "lens": [
+      40,
+      44
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 21,
+    "cs": 0,
+    "opcodes": [
+      [
+        "replace",
+        3,
+        3
+      ],
+      [
+        "replace",
+        1,
+        14
+      ],
+      [
+        "delete",
+        9,
+        0
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 21
+      },
+      {
+        "a": 26,
+        "b": 39,
+        "size": 5
+      },
+      {
+        "a": 24,
+        "b": 24,
+        "size": 1
+      }
+    ],
+    "prev_text_at_cp": " ⠋ thinking…",
+    "cur_text_at_cp": " ● The user wants exactly one code block, 60 lines. Line 1 starts with SPIKE-H-001, last line ends with SPIKE-H-060.   ",
+    "prev_text_at_end_cs": "",
+    "cur_text_at_end_cs": "                                                                                                     context: 0% (0/1M)"
+  },
+  {
+    "t": 4.454,
+    "lens": [
+      44,
+      58
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 35,
+    "cs": 5,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        15
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 35
+      },
+      {
+        "a": 39,
+        "b": 53,
+        "size": 5
+      },
+      {
+        "a": 36,
+        "b": 50,
+        "size": 2
+      }
+    ],
+    "prev_text_at_cp": "     SPIKE-H                                                                                                           ",
+    "cur_text_at_cp": "     SPIKE-H-010 hotel                                                                                                 ",
+    "prev_text_at_end_cs": "  ⠼ Working… · Tip: /goal for multi-step work with a clear finish line                                                 ",
+    "cur_text_at_end_cs": "  ⠇ Working… · Tip: /goal for multi-step work with a clear finish line                                                 "
+  },
+  {
+    "t": 4.757,
+    "lens": [
+      58,
+      72
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 49,
+    "cs": 5,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        15
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 49
+      },
+      {
+        "a": 53,
+        "b": 67,
+        "size": 5
+      },
+      {
+        "a": 50,
+        "b": 64,
+        "size": 2
+      }
+    ],
+    "prev_text_at_cp": "     SPIKE-H-024                                                                                                       ",
+    "cur_text_at_cp": "     SPIKE-H-024 hotel                                                                                                 ",
+    "prev_text_at_end_cs": "  ⠇ Working… · Tip: /goal for multi-step work with a clear finish line                                                 ",
+    "cur_text_at_end_cs": "  ⠹ Working… · Tip: /goal for multi-step work with a clear finish line                                                 "
+  },
+  {
+    "t": 5.061,
+    "lens": [
+      72,
+      88
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 16,
+    "prefix_eq": false,
+    "cp": 64,
+    "cs": 5,
+    "opcodes": [
+      [
+        "insert",
+        0,
+        16
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 64
+      },
+      {
+        "a": 67,
+        "b": 83,
+        "size": 5
+      },
+      {
+        "a": 64,
+        "b": 80,
+        "size": 2
+      }
+    ],
+    "prev_text_at_cp": "   ```                                                                                                                 ",
+    "cur_text_at_cp": "     SPIKE-H-039 hotel                                                                                                 ",
+    "prev_text_at_end_cs": "  ⠹ Working… · Tip: /goal for multi-step work with a clear finish line                                                 ",
+    "cur_text_at_end_cs": "  ⠦ Working… · Tip: /goal for multi-step work with a clear finish line                                                 "
+  },
+  {
+    "t": 5.365,
+    "lens": [
+      88,
+      93
+    ],
+    "k": 0,
+    "k1": 0,
+    "recovered": 0,
+    "prefix_eq": false,
+    "cp": 79,
+    "cs": 0,
+    "opcodes": [
+      [
+        "replace",
+        1,
+        7
+      ],
+      [
+        "delete",
+        1,
+        0
+      ],
+      [
+        "replace",
+        1,
+        1
+      ]
+    ],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 79
+      },
+      {
+        "a": 83,
+        "b": 88,
+        "size": 4
+      },
+      {
+        "a": 80,
+        "b": 86,
+        "size": 2
+      }
+    ],
+    "prev_text_at_cp": "     SPIKE-H                                                                                                           ",
+    "cur_text_at_cp": "     SPIKE-H-054 hotel                                                                                                 ",
+    "prev_text_at_end_cs": "                                                                                                     context: 0% (0/1M)",
+    "cur_text_at_end_cs": "                                                                                                 context: 2% (14.7k/1M)"
+  },
+  {
+    "t": 5.668,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 5.971,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 6.275,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 6.579,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 6.883,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 7.188,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 7.492,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 7.796,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 8.102,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 8.405,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 8.708,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 9.013,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 9.316,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 9.621,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 9.928,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 10.235,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 10.539,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 10.843,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 11.147,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 11.45,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 11.753,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 12.057,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 12.361,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 12.664,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 12.97,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 13.273,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 13.577,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 13.881,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 14.185,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 14.489,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 14.792,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 15.097,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 15.4,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 15.703,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 16.007,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 16.31,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 16.614,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 16.917,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 17.22,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 17.524,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 17.827,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 18.131,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 18.437,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 18.741,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 19.045,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 19.348,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 19.652,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 19.955,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 20.258,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 20.562,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 20.865,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 21.169,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 21.472,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 21.776,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 22.079,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 22.382,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 22.686,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 22.99,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 23.293,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 23.596,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  },
+  {
+    "t": 23.9,
+    "lens": [
+      93,
+      93
+    ],
+    "k": 93,
+    "k1": 93,
+    "recovered": 0,
+    "prefix_eq": true,
+    "cp": 93,
+    "cs": 93,
+    "opcodes": [],
+    "blocks": [
+      {
+        "a": 0,
+        "b": 0,
+        "size": 93
+      }
+    ],
+    "prev_text_at_cp": null,
+    "cur_text_at_cp": null,
+    "prev_text_at_end_cs": null,
+    "cur_text_at_end_cs": null
+  }
+]

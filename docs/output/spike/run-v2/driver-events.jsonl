@@ -1,0 +1,23 @@
+{"ts": 1793596279.51, "label": "A", "action": "send", "detail": "请只输出一个代码块，共 80 行。第 1 行以 SPIKE-A-001 开头，最后一行以 SPIKE-A-080 结尾，每行格式为 SPIKE-A-XXX alpha，其中 XXX 是三位递增编号。代码块外不要写任何内容。"}
+{"ts": 1793596282.326, "label": "A", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596291.361, "label": "A", "action": "settled"}
+{"ts": 1793596339.394, "label": "B", "action": "send", "detail": "请只回复：SPIKE-B-OK"}
+{"ts": 1793596342.212, "label": "B", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596352.257, "label": "B", "action": "settled"}
+{"ts": 1793596385.289, "label": "C", "action": "send", "detail": "请只输出一个代码块，共 60 行。第 1 行以 SPIKE-C-001 开头，最后一行以 SPIKE-C-060 结尾，每行格式为 SPIKE-C-XXX charlie，其中 XXX 是三位递增编号。代码块外不要写任何内容。"}
+{"ts": 1793596388.108, "label": "C", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596396.15, "label": "C", "action": "settled"}
+{"ts": 1793596430.693, "label": "P", "action": "pasted"}
+{"ts": 1793596430.693, "label": "P", "action": "box_line_count", "detail": 0}
+{"ts": 1793596432.701, "label": "P", "action": "submitted"}
+{"ts": 1793596441.743, "label": "P", "action": "settled", "detail": {"counts": {"PASTE-ALPHA": 0, "PASTE-BETA": 0, "PASTE-GAMMA": 0}, "user_echoes": 0}}
+{"ts": 1793596474.779, "label": "D", "action": "send", "detail": "请只回复：SPIKE-D-OK"}
+{"ts": 1793596477.595, "label": "D", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596485.629, "label": "D", "action": "settled"}
+{"ts": 1793596513.661, "label": "E", "action": "send", "detail": "请只输出一个代码块，共 70 行。第 1 行以 SPIKE-E-001 开头，最后一行以 SPIKE-E-070 结尾，每行格式为 SPIKE-E-XXX echo，其中 XXX 是三位递增编号。代码块外不要写任何内容。"}
+{"ts": 1793596516.479, "label": "E", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596524.513, "label": "E", "action": "settled"}
+{"ts": 1793596562.552, "label": "F", "action": "send", "detail": "请只回复：SPIKE-F-OK"}
+{"ts": 1793596565.372, "label": "F", "action": "submitted", "detail": {"box": ""}}
+{"ts": 1793596574.418, "label": "F", "action": "settled"}
+{"ts": 1793596594.418, "label": "all", "action": "done"}
