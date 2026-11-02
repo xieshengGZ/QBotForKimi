@@ -6,6 +6,7 @@ inbound queue in connection order. The outbound half calls NapCat's HTTP API.
 
 from __future__ import annotations
 
+import hashlib
 import hmac
 import json
 import logging
@@ -130,18 +131,16 @@ class _IngressHandler(BaseHTTPRequestHandler):
             self._send_status(404)
             return
 
-        length = self._content_length(ingress.max_body_bytes)
-        if length is None:
+        body = self._read_body(ingress.max_body_bytes)
+        if body is None:
             return
 
-        if not self._authorized(ingress.access_token):
+        if not self._authorized(body, ingress.access_token):
             logger.warning(
                 "ingress auth failed from %s", self.client_address[0]
             )
-            self._send_status(401)
+            self._send_status(401, close=True)
             return
-
-        body = self.rfile.read(length)
         try:
             payload = json.loads(body)
         except (json.JSONDecodeError, UnicodeDecodeError):
@@ -209,6 +208,83 @@ class _IngressHandler(BaseHTTPRequestHandler):
             )
         self._send_status(200)
 
+    def _read_body(self, max_body_bytes: int) -> bytes | None:
+        raw_encoding = self.headers.get("Transfer-Encoding")
+        has_length = self.headers.get("Content-Length") is not None
+        if raw_encoding is not None:
+            if has_length:
+                logger.warning(
+                    "ingress request has both Transfer-Encoding and "
+                    "Content-Length"
+                )
+                self._send_status(400, close=True)
+                return None
+            codings = [
+                item.strip().lower()
+                for item in raw_encoding.split(",")
+                if item.strip()
+            ]
+            if codings != ["chunked"]:
+                logger.warning(
+                    "unsupported Transfer-Encoding in ingress request: %s",
+                    raw_encoding,
+                )
+                self._send_status(400, close=True)
+                return None
+            return self._read_chunked(max_body_bytes)
+
+        length = self._content_length(max_body_bytes)
+        if length is None:
+            return None
+        return self.rfile.read(length)
+
+    def _read_chunked(self, max_body_bytes: int) -> bytes | None:
+        """Read an HTTP/1.1 chunked body without trusting a Content-Length."""
+        body = bytearray()
+        while True:
+            line = self.rfile.readline(65537)
+            if not line or len(line) > 65536:
+                logger.warning("invalid chunked ingress request")
+                self._send_status(400, close=True)
+                return None
+            size_token = line.split(b";", 1)[0].strip()
+            if not re.fullmatch(rb"[0-9A-Fa-f]+", size_token):
+                logger.warning("invalid chunk size in ingress request")
+                self._send_status(400, close=True)
+                return None
+            size = int(size_token, 16)
+            if size == 0:
+                while True:
+                    trailer = self.rfile.readline(65537)
+                    if not trailer:
+                        break
+                    if len(trailer) > 65536:
+                        logger.warning("invalid chunk trailer in ingress request")
+                        self._send_status(400, close=True)
+                        return None
+                    if trailer in (b"\r\n", b"\n"):
+                        break
+                return bytes(body)
+            if len(body) + size > max_body_bytes:
+                logger.warning(
+                    "oversized chunked ingress body: %d + %d > %d bytes",
+                    len(body),
+                    size,
+                    max_body_bytes,
+                )
+                self._send_status(413, close=True)
+                return None
+            chunk = self.rfile.read(size)
+            if len(chunk) != size:
+                logger.warning("truncated chunk in ingress request")
+                self._send_status(400, close=True)
+                return None
+            body.extend(chunk)
+            if self.rfile.read(2) != b"\r\n":
+                logger.warning("missing CRLF after chunk in ingress request")
+                self._send_status(400, close=True)
+                return None
+
     def _content_length(self, max_body_bytes: int) -> int | None:
         raw = self.headers.get("Content-Length")
         if raw is None:
@@ -234,12 +310,35 @@ class _IngressHandler(BaseHTTPRequestHandler):
             return None
         return length
 
-    def _authorized(self, access_token: str) -> bool:
-        provided = self.headers.get("Authorization", "")
-        expected = f"Bearer {access_token}"
-        return hmac.compare_digest(
-            provided.encode("utf-8"), expected.encode("utf-8")
-        )
+    def _authorized(self, body: bytes, access_token: str) -> bool:
+        """Accept bearer tokens and NapCat's OneBot ``X-Signature``.
+
+        NapCat's HTTP reporter hashes the raw body with HMAC-SHA1 and sends
+        ``X-Signature: sha1=<hex>`` instead of ``Authorization``. Manual
+        clients and the old deployment use ``Authorization: Bearer``.
+        """
+        provided = self.headers.get("Authorization")
+        if provided is not None:
+            expected = f"Bearer {access_token}"
+            return hmac.compare_digest(
+                provided.encode("utf-8"), expected.encode("utf-8")
+            )
+
+        signature = self.headers.get("X-Signature")
+        if signature is None:
+            return False
+        prefix = "sha1="
+        digest = signature.strip()
+        if not digest.lower().startswith(prefix):
+            return False
+        expected = hmac.new(
+            access_token.encode("utf-8"), body, hashlib.sha1
+        ).hexdigest()
+        try:
+            actual = digest[len(prefix):].strip().lower().encode("ascii")
+        except UnicodeEncodeError:
+            return False
+        return hmac.compare_digest(actual, expected.encode("ascii"))
 
     def _send_status(self, status: int, *, close: bool = False) -> None:
         self.send_response(status)

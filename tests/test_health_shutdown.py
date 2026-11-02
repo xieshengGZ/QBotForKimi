@@ -33,6 +33,7 @@ access_token = "onebot-token"
 [tmux]
 session = "kimico"
 kimico_command = "kimico"
+working_directory = "/home/ubuntu/qq_work"
 history_limit = 50000
 poll_ms = 50
 
@@ -293,7 +294,9 @@ def test_signal_stops_http_and_input_before_final_save(
         "join:gateway-monitor",
         "join:gateway-sender",
     ]
-    assert ensure_calls == [("kimico", "kimico", 50000)]
+    assert ensure_calls == [
+        ("kimico", "kimico", 50000, "/home/ubuntu/qq_work")
+    ]
     assert respawn_calls == []
 
 

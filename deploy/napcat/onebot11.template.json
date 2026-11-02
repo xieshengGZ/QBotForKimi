@@ -6,7 +6,7 @@
         "enable": true,
         "host": "127.0.0.1",
         "port": 3000,
-        "secret": "REPLACE_WITH_ONEBOT_ACCESS_TOKEN",
+        "token": "REPLACE_WITH_ONEBOT_ACCESS_TOKEN",
         "enableCors": true,
         "enableWebsocket": false,
         "messagePostFormat": "array",
@@ -19,7 +19,7 @@
         "name": "kimico-gateway-report",
         "enable": true,
         "url": "http://127.0.0.1:8080/cq",
-        "secret": "REPLACE_WITH_SERVER_ACCESS_TOKEN",
+        "token": "REPLACE_WITH_SERVER_ACCESS_TOKEN",
         "reportSelfMessage": false,
         "messagePostFormat": "array",
         "debug": false

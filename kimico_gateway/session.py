@@ -48,16 +48,22 @@ def session_exists(session: str) -> bool:
     return result.returncode == 0
 
 
-def ensure_session(session: str, kimico_command: str, history_limit: int) -> None:
+def ensure_session(
+    session: str,
+    kimico_command: str,
+    history_limit: int,
+    working_directory: str = "",
+) -> None:
     """Create ``session`` or take over an existing one, idempotently.
 
     Creation sets the global history limit before ``new-session`` so the pane
     is born with the configured capacity, then enables and verifies
-    ``remain-on-exit``. If no tmux server is running, a temporary bootstrap
-    session starts one first (a tmux server exits when it has no sessions),
-    and is removed afterwards. Takeover only enables and verifies
-    ``remain-on-exit``; an existing pane's history cannot be resized, so a
-    lower actual limit is reported as a warning.
+    ``remain-on-exit``. A non-empty ``working_directory`` is passed to tmux as
+    ``-c`` so kimi starts in the fixed directory. If no tmux server is running,
+    a temporary bootstrap session starts one first (a tmux server exits when
+    it has no sessions), and is removed afterwards. Takeover only enables and
+    verifies ``remain-on-exit``; an existing pane's history cannot be resized,
+    so a lower actual limit is reported as a warning.
 
     Raises:
         TmuxError: a tmux command failed or the resulting session does not
@@ -89,10 +95,11 @@ def ensure_session(session: str, kimico_command: str, history_limit: int) -> Non
             ],
             "set global history-limit",
         )
-        _checked(
-            ["tmux", "new-session", "-d", "-s", session, "--", *argv],
-            "create tmux session",
-        )
+        new_session = ["tmux", "new-session", "-d", "-s", session]
+        if working_directory:
+            new_session.extend(["-c", working_directory])
+        new_session.extend(["--", *argv])
+        _checked(new_session, "create tmux session")
         _set_remain_on_exit(session)
         _verify_remain_on_exit(session)
         actual = _read_history_limit()
@@ -162,28 +169,25 @@ def get_pane_state(session: str) -> PaneState:
     return PaneState.UNKNOWN
 
 
-def respawn_pane(session: str, kimico_command: str) -> None:
+def respawn_pane(
+    session: str, kimico_command: str, working_directory: str = ""
+) -> None:
     """Restart kimico in place in a confirmed dead pane.
 
-    The caller must only invoke this after :func:`get_pane_state` returned
-    ``DEAD``; ``-k`` would otherwise destroy a live process.
+    A non-empty ``working_directory`` is passed to tmux as ``-c`` so a
+    recovered kimi keeps the configured directory. The caller must only
+    invoke this after :func:`get_pane_state` returned ``DEAD``; ``-k`` would
+    otherwise destroy a live process.
 
     Raises:
         TmuxError: the respawn command failed or timed out.
     """
     argv = _kimico_argv(kimico_command)
-    _checked(
-        [
-            "tmux",
-            "respawn-pane",
-            "-k",
-            "-t",
-            _pane_target(session),
-            "--",
-            *argv,
-        ],
-        "respawn pane",
-    )
+    command = ["tmux", "respawn-pane", "-k", "-t", _pane_target(session)]
+    if working_directory:
+        command.extend(["-c", working_directory])
+    command.extend(["--", *argv])
+    _checked(command, "respawn pane")
     logger.info("respawned pane for tmux session %r", session)
 
 

@@ -419,6 +419,18 @@ def test_loopback_host_does_not_warn(
     )
 
 
+def test_tmux_working_directory_defaults_empty_and_must_be_absolute(
+    tmp_path: Path,
+) -> None:
+    config = load_config(str(_write(tmp_path, MINIMAL)))
+    assert config.tmux.working_directory == ""
+
+    relative = MINIMAL + '\n[tmux]\nworking_directory = "qq_work"\n'
+    with pytest.raises(ConfigError) as excinfo:
+        load_config(str(_write(tmp_path, relative)))
+    assert "tmux.working_directory" in str(excinfo.value)
+
+
 def test_access_tokens_are_masked_in_every_log_line(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:

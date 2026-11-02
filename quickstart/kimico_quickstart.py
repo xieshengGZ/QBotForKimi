@@ -16,7 +16,7 @@ systemd integration. See ``quickstart/README.md`` for the trade-offs.
 
 Run:
     python3 quickstart/kimico_quickstart.py \
-        --config /etc/kimico-gateway/config.toml
+        --config /var/lib/kimico/config.toml
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from pathlib import Path
 
 LOG = logging.getLogger("kimico_quickstart")
 
-DEFAULT_CONFIG = "/etc/kimico-gateway/config.toml"
+DEFAULT_CONFIG = "/var/lib/kimico/config.toml"
 TMUX_TIMEOUT = 5.0
 DEDUP_CAPACITY = 200
 ECHO_WINDOW_SECONDS = 10.0

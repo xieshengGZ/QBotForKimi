@@ -1,57 +1,26 @@
-# kimico-gateway 配置模板。
+# kimico 的唯一配置文件。
 #
-# 安装脚本会把本文件复制为 /etc/kimico-gateway/config.toml，
-# 属运行用户（默认 ubuntu）且权限为 600。
-# 至少替换两处 token 与 auth.main_qq，再启动服务。
-# token 不得使用 change-me，且两侧 token 必须与 NapCat 的 OneBot 配置一致。
+# 安装后只需改下面两个 QQ 号，然后：
+#   sudo systemctl restart kimico
+#
+# 端口、access token、NapCat 的 OneBot 配置都会自动生成，
+# 不需要也不应该手工填写。
 
-[server]
-# HTTP 接入仅监听回环，NapCat 通过 127.0.0.1:8080/cq 上报事件。
-host = "127.0.0.1"
-port = 8080
-path = "/cq"
-# 与 NapCat OneBot「HTTP 上报」的 Access Token 一致。
-access_token = "REPLACE_WITH_SERVER_ACCESS_TOKEN"
-max_body_bytes = 1048576
+[qq]
+# 网关 QQ：机器上的 NapCat 登录的机器人账号。
+# 请使用专用小号，不要用主账号。
+gateway_qq = 1000000000
 
-[auth]
-# 主 QQ：用户手机上用来私聊控制网关的账号，不是网关 QQ。
-main_qq = 1000000000
+# 主 QQ：你手机上的账号，用来私聊控制这台机器。
+main_qq = 1000000001
 
-[onebot]
-# NapCat OneBot HTTP API，仅回环。
-api_base = "http://127.0.0.1:3000"
-# 与 NapCat OneBot「HTTP 服务器」的 Access Token 一致。
-access_token = "REPLACE_WITH_ONEBOT_ACCESS_TOKEN"
+# 可选：kimi 命令。删掉或留空时自动查找 kimi/kimico。
+# --auto = Never Ask 模式：工具调用和命令自动执行。
+# [kimico]
+# command = "/home/ubuntu/.kimi-code/bin/kimi --auto"
+# working_directory = "/home/ubuntu/qq_work"
 
-[tmux]
-session = "kimico"
-# 必须写绝对路径，或在 systemd unit 的 PATH 中能找到 kimico。
-kimico_command = "/home/ubuntu/.local/bin/kimico"
-history_limit = 50000
-capture_lines = 5000
-poll_ms = 300
-stable_rounds = 3
-volatile_tail_lines = 0
-k0_rebuild_threshold = 3
-
-[mirror]
-chunk_chars = 1500
-send_interval_ms = 1000
-outbound_queue_max = 500
-batch_quiet_ms = 300
-batch_max_chars = 3000
-ignore_patterns = ["^\\s*$"]
-echo_prefix_patterns = ["^\\s*[>›❯]\\s*"]
-
-[recovery]
-backoff_seconds = [5, 15, 60]
-max_attempts = 3
-window_seconds = 600
-success_reset_seconds = 60
-
-[state]
-path = "/var/lib/kimico-gateway/state.json"
-
-[logging]
-level = "INFO"
+# 可选：NapCat 镜像。默认值是一个真实存在的固定版本。
+# [napcat]
+# image = "mlikiowa/napcat-docker:v4.8.124"
+# container = "kimico-napcat"

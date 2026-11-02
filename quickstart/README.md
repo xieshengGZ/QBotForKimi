@@ -6,15 +6,15 @@
 tmux/kimi  <--  kimico_quickstart.py  -->  NapCat  <--  手机 QQ
 ```
 
-它复用完整网关的配置文件（`/etc/kimico-gateway/config.toml`），但**不替代**
+它复用完整网关生成的运行配置（`/var/lib/kimico/config.toml`），但**不替代**
 `kimico_gateway/`。长期运行、systemd、恢复、双 lane、状态持久化请用完整网关。
 
 ## 运行
 
 ```bash
-# 直接复用已安装的配置
+# 直接复用已安装服务生成的配置
 python3 quickstart/kimico_quickstart.py \
-  --config /etc/kimico-gateway/config.toml
+  --config /var/lib/kimico/config.toml
 
 # 或显式指定关键参数
 python3 quickstart/kimico_quickstart.py \

@@ -36,7 +36,7 @@ from .session import (
 )
 from .state import StateStore
 
-DEFAULT_CONFIG_PATH = "/etc/kimico-gateway/config.toml"
+DEFAULT_CONFIG_PATH = "/var/lib/kimico/config.toml"
 LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
 INBOUND_CAPACITY = 50
 DEDUP_CAPACITY = 200
@@ -245,12 +245,15 @@ class Gateway:
             config.recovery,
             notify=self.bus.put_control,
             respawn=lambda: respawn_pane_fn(
-                config.tmux.session, config.tmux.kimico_command
+                config.tmux.session,
+                config.tmux.kimico_command,
+                config.tmux.working_directory,
             ),
             recreate=lambda: ensure_session_fn(
                 config.tmux.session,
                 config.tmux.kimico_command,
                 config.tmux.history_limit,
+                config.tmux.working_directory,
             ),
             pane_state=lambda: get_pane_state_fn(config.tmux.session),
             sleep=stop_event.wait,
@@ -443,6 +446,7 @@ def run_gateway(
             config.tmux.session,
             config.tmux.kimico_command,
             config.tmux.history_limit,
+            config.tmux.working_directory,
         )
     except TmuxError as exc:
         print(f"tmux self-check failed: {exc}", file=sys.stderr)

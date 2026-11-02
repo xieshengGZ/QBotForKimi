@@ -1,5 +1,10 @@
 # 30 · 部署与运维
 
+> **现状（2026-11-02 之后）**：部署已合并为单个 systemd 服务 `kimico`。
+> 操作员只在 `/etc/kimico/config.toml` 填 `gateway_qq` 和 `main_qq`，
+> 端口、token、NapCat 容器由服务自动生成和管理；入口见 `deploy/README.md`。
+> 下文保留为早期分体方案的设计记录。
+
 ## 1. 组件拓扑与端口
 
 | 组件 | 部署方式 | 监听 | 说明 |

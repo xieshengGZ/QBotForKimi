@@ -152,6 +152,26 @@ def test_ensure_create_sets_history_limit_before_new_session(
     assert "kill-session" not in commands
 
 
+def test_ensure_create_uses_configured_working_directory(
+    fake_tmux: FakeTmux,
+) -> None:
+    ensure_session(
+        "kimico", "kimico", 50000, "/home/ubuntu/qq_work"
+    )
+
+    assert fake_tmux.args_for("new-session")[0] == [
+        "tmux",
+        "new-session",
+        "-d",
+        "-s",
+        "kimico",
+        "-c",
+        "/home/ubuntu/qq_work",
+        "--",
+        "kimico",
+    ]
+
+
 def test_ensure_create_enables_and_verifies_remain_on_exit(
     fake_tmux: FakeTmux,
 ) -> None:
@@ -482,6 +502,27 @@ def test_respawn_uses_confirmed_dead_pane_command(fake_tmux: FakeTmux) -> None:
             "--flag",
             "two words",
         ]
+    ]
+
+
+def test_respawn_uses_configured_working_directory(
+    fake_tmux: FakeTmux,
+) -> None:
+    respawn_pane(
+        "kimico", "kimico --auto", "/home/ubuntu/qq_work"
+    )
+
+    assert fake_tmux.args_for("respawn-pane")[0] == [
+        "tmux",
+        "respawn-pane",
+        "-k",
+        "-t",
+        "=kimico:",
+        "-c",
+        "/home/ubuntu/qq_work",
+        "--",
+        "kimico",
+        "--auto",
     ]
 
 

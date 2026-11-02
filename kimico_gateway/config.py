@@ -30,6 +30,7 @@ _SECTION_FIELDS: dict[str, tuple[str, ...]] = {
     "tmux": (
         "session",
         "kimico_command",
+        "working_directory",
         "history_limit",
         "capture_lines",
         "poll_ms",
@@ -88,6 +89,7 @@ class OnebotConfig:
 class TmuxConfig:
     session: str
     kimico_command: str
+    working_directory: str
     history_limit: int
     capture_lines: int
     poll_ms: int
@@ -218,6 +220,11 @@ def load_config(path: str) -> Config:
     kimico_command = _str_field(
         tmux_raw, "tmux", "kimico_command", "kimico", errors, non_empty=True
     )
+    working_directory = _str_field(
+        tmux_raw, "tmux", "working_directory", "", errors
+    )
+    if working_directory and not os.path.isabs(working_directory):
+        errors.append("tmux.working_directory: must be an absolute path")
     history_limit = _int_field(
         tmux_raw, "tmux", "history_limit", 50000, errors, minimum=1000
     )
@@ -330,6 +337,7 @@ def load_config(path: str) -> Config:
         tmux=TmuxConfig(
             session=tmux_session,
             kimico_command=kimico_command,
+            working_directory=working_directory,
             history_limit=history_limit,
             capture_lines=capture_lines,
             poll_ms=poll_ms,

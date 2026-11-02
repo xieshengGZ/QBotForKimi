@@ -1,0 +1,36 @@
+[Unit]
+Description=kimico QQ remote control
+Documentation=file:///opt/kimico/README.md
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+SupplementaryGroups=docker
+WorkingDirectory=/opt/kimico
+Environment=HOME=/home/ubuntu
+Environment=TERM=xterm-256color
+Environment=PATH=/home/ubuntu/.kimi-code/bin:/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+Environment=no_proxy=127.0.0.1,localhost
+# NapCat runs as root in the container and may rewrite its mounted config
+# directory as root. Hand the small config directory back to the service user
+# so the bootstrap (which runs as ubuntu) can keep it in sync.
+ExecStartPre=+/usr/bin/chown -R ubuntu:ubuntu /var/lib/kimico/napcat/config
+ExecStartPre=/usr/bin/python3.12 -m kimico_gateway.bootstrap /etc/kimico/config.toml
+ExecStart=/usr/bin/python3.12 -m kimico_gateway /var/lib/kimico/config.toml
+ExecStopPost=-/usr/bin/docker stop kimico-napcat
+Restart=on-failure
+RestartSec=5
+RestartPreventExitStatus=2
+KillMode=process
+TimeoutStartSec=600
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

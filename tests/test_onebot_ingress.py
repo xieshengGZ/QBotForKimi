@@ -6,6 +6,8 @@ speaks raw HTTP to it. No external NapCat or network is involved.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import http.client
 import json
 import logging
@@ -130,6 +132,40 @@ def request_json(
     **kwargs: Any,
 ) -> tuple[int, dict[str, str], bytes]:
     return request(port, body=json.dumps(payload).encode("utf-8"), **kwargs)
+
+
+def onebot_signature(body: bytes, token: str = TOKEN) -> str:
+    digest = hmac.new(token.encode("utf-8"), body, hashlib.sha1).hexdigest()
+    return f"sha1={digest}"
+
+
+def chunked_request(
+    port: int,
+    chunks: list[bytes],
+    *,
+    auth: str | None = TOKEN,
+    signature: bool = False,
+    path: str = PATH,
+    timeout: float = 2.0,
+) -> tuple[int, dict[str, str], bytes]:
+    """POST a body using ``Transfer-Encoding: chunked`` like Node's http client."""
+    connection = http.client.HTTPConnection(HOST, port, timeout=timeout)
+    connection.putrequest("POST", path, skip_accept_encoding=True)
+    connection.putheader("Transfer-Encoding", "chunked")
+    if signature:
+        connection.putheader("X-Signature", onebot_signature(b"".join(chunks)))
+    elif auth is not None:
+        connection.putheader("Authorization", f"Bearer {auth}")
+    connection.endheaders()
+    for chunk in chunks:
+        connection.send(f"{len(chunk):X}\r\n".encode("ascii") + chunk + b"\r\n")
+    connection.send(b"0\r\n\r\n")
+    response = connection.getresponse()
+    payload = response.read()
+    headers = {key.lower(): value for key, value in response.getheaders()}
+    status = response.status
+    connection.close()
+    return status, headers, payload
 
 
 # --- Text extraction --------------------------------------------------------
@@ -300,6 +336,109 @@ def test_server_missing_length(make_server: Any) -> None:
     status, _headers, _body = request(port, length=None, body=None)
 
     assert status == 411
+    assert events == []
+
+
+def test_server_accepts_chunked_report(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+    body = json.dumps(make_event()).encode("utf-8")
+
+    status, _headers, _body = chunked_request(
+        port, [body[:11], body[11:29], body[29:]]
+    )
+
+    assert status == 200
+    assert len(events) == 1
+    assert events[0].text == "hello"
+
+
+def test_server_accepts_napcat_signature_on_chunked_report(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+    body = json.dumps(make_event()).encode("utf-8")
+
+    status, _headers, _body = chunked_request(
+        port, [body[:13], body[13:]], signature=True
+    )
+
+    assert status == 200
+    assert len(events) == 1
+    assert events[0].text == "hello"
+
+
+def test_server_rejects_bad_napcat_signature(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+    body = json.dumps(make_event()).encode("utf-8")
+
+    connection = http.client.HTTPConnection(HOST, port, timeout=2.0)
+    connection.putrequest("POST", PATH, skip_accept_encoding=True)
+    connection.putheader("Transfer-Encoding", "chunked")
+    connection.putheader("X-Signature", "sha1=" + "0" * 40)
+    connection.endheaders()
+    connection.send(f"{len(body):X}\r\n".encode("ascii") + body + b"\r\n")
+    connection.send(b"0\r\n\r\n")
+    response = connection.getresponse()
+    response.read()
+    status = response.status
+    connection.close()
+
+    assert status == 401
+    assert events == []
+
+
+def test_server_rejects_oversized_chunked_body(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+
+    status, headers, _body = chunked_request(port, [b"x" * (MAX_BODY + 1)])
+
+    assert status == 413
+    assert headers["connection"] == "close"
+    assert events == []
+
+
+def test_server_rejects_chunked_with_content_length(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+    body = json.dumps(make_event()).encode("utf-8")
+
+    connection = http.client.HTTPConnection(HOST, port, timeout=2.0)
+    connection.putrequest("POST", PATH, skip_accept_encoding=True)
+    connection.putheader("Content-Length", str(len(body)))
+    connection.putheader("Transfer-Encoding", "chunked")
+    connection.putheader("Authorization", f"Bearer {TOKEN}")
+    connection.endheaders()
+    connection.send(f"{len(body):X}\r\n".encode("ascii") + body + b"\r\n")
+    connection.send(b"0\r\n\r\n")
+    response = connection.getresponse()
+    response.read()
+    headers = {key.lower(): value for key, value in response.getheaders()}
+    status = response.status
+    connection.close()
+
+    assert status == 400
+    assert headers["connection"] == "close"
+    assert events == []
+
+
+def test_server_rejects_invalid_chunk_size(make_server: Any) -> None:
+    events: list[PrivateMessageEvent] = []
+    _server, port = make_server(events.append)
+
+    connection = http.client.HTTPConnection(HOST, port, timeout=2.0)
+    connection.putrequest("POST", PATH, skip_accept_encoding=True)
+    connection.putheader("Transfer-Encoding", "chunked")
+    connection.putheader("Authorization", f"Bearer {TOKEN}")
+    connection.endheaders()
+    connection.send(b"zz\r\n")
+    response = connection.getresponse()
+    response.read()
+    status = response.status
+    connection.close()
+
+    assert status == 400
     assert events == []
 
 

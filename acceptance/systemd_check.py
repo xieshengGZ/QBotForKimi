@@ -2,7 +2,7 @@
 """Systemd acceptance for tickets 9 and 11.
 
 This script deliberately uses the installed unit and
-``/etc/kimico-gateway/config.toml`` (ticket 15). It starts the service, checks
+``/etc/kimico/config.toml`` (ticket 15). It starts the service, checks
 that ``systemctl restart`` leaves the tmux/kimico pane PID unchanged, checks
 the config mode/owner/readability, then restores the service to
 ``inactive`` + ``disabled``.
@@ -22,8 +22,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-UNIT = "kimico-gateway"
-CONFIG = Path("/etc/kimico-gateway/config.toml")
+UNIT = "kimico"
+CONFIG = Path("/etc/kimico/config.toml")
 SESSION = "kimico"
 
 

@@ -2,7 +2,7 @@
 
 ## 1. 加载方式
 
-- 启动命令：`python3 -m kimico_gateway [config_path]`；未传参时默认路径 `/etc/kimico-gateway/config.toml`。
+- 启动命令：`python3 -m kimico_gateway [config_path]`；未传参时默认路径 `/var/lib/kimico/config.toml`（由 `kimico_gateway.bootstrap` 从两个 QQ 号生成）。
 - 使用 `tomllib` 解析；解析失败、缺必需键、类型或取值非法 → 启动失败（见 `10-mod-config.md`）。
 - 配置中未出现的**未知键**：记 warning 日志并忽略，不影响启动。
 - `server.access_token` / `onebot.access_token` 不得为 `change-me` 或空串；启动时拒绝并退出码 2。
@@ -26,6 +26,7 @@ access_token = "<REQUIRED>"       # 必需，无默认；不得为 change-me
 
 [tmux]
 session = "kimico"
+working_directory = ""
 kimico_command = "kimico"
 history_limit = 50000
 capture_lines = 5000

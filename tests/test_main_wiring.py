@@ -169,6 +169,7 @@ access_token = "onebot-token"
 [tmux]
 session = "kimico"
 kimico_command = "{kimico_command}"
+working_directory = "/home/ubuntu/qq_work"
 history_limit = 50000
 poll_ms = 50
 
@@ -235,7 +236,9 @@ def test_startup_happy_starts_all_four_threads_and_returns_zero(tmp_path) -> Non
 
     assert result == 0
     assert store.loads == 1
-    assert ensured == [("kimico", "kimico", 50000)]
+    assert ensured == [
+        ("kimico", "kimico", 50000, "/home/ubuntu/qq_work")
+    ]
     assert len(servers) == 1
     assert [thread.name for thread in threads] == [
         "gateway-http",

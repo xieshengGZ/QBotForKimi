@@ -20,7 +20,7 @@ kimico_gateway/
 └── session.py
 ```
 
-- 运行：`python3 -m kimico_gateway [config_path]`；`config_path` 缺省 `/etc/kimico-gateway/config.toml`。
+- 运行：`python3 -m kimico_gateway [config_path]`；`config_path` 缺省 `/var/lib/kimico/config.toml`。
 - 退出码：正常停机 0；配置错误 2；kimico 命令预检/tmux 自检失败 3；端口占用等启动期致命错误 4；运行期线程死亡 5。
 
 ## 3. 共享运行时状态

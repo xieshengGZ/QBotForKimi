@@ -1,7 +1,7 @@
-"""Static checks for the systemd and NapCat deployment artifacts (ticket 15).
+"""Static checks for the single-service deployment artifacts.
 
-These tests only read the files under ``deploy/``. They never require root,
-never start a service, and never touch Docker, tmux, or the network.
+These tests only read files under ``deploy/``. They never require root, never
+start a service, and never touch Docker, tmux, or the network.
 """
 
 from __future__ import annotations
@@ -9,27 +9,22 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
 
-from kimico_gateway.config import load_config
-
 ROOT = Path(__file__).resolve().parents[1]
 DEPLOY = ROOT / "deploy"
-UNIT_PATH = DEPLOY / "kimico-gateway.service"
+UNIT_PATH = DEPLOY / "kimico.service"
 CONFIG_TEMPLATE = DEPLOY / "config.toml.example"
-COMPOSE_PATH = DEPLOY / "napcat" / "compose.yaml"
 ONEBOT_TEMPLATE = DEPLOY / "napcat" / "onebot11.template.json"
-NAPCAT_START = DEPLOY / "napcat" / "start.sh"
 INSTALL_SCRIPT = DEPLOY / "install.sh"
 UNINSTALL_SCRIPT = DEPLOY / "uninstall.sh"
 README = DEPLOY / "README.md"
 
 SERVER_TOKEN_PLACEHOLDER = "REPLACE_WITH_SERVER_ACCESS_TOKEN"
 ONEBOT_TOKEN_PLACEHOLDER = "REPLACE_WITH_ONEBOT_ACCESS_TOKEN"
-REPORT_URL = "http://127.0.0.1:8080/cq"
-API_BASE = "http://127.0.0.1:3000"
 
 
 def _read(path: Path) -> str:
@@ -38,10 +33,7 @@ def _read(path: Path) -> str:
 
 
 def parse_unit(text: str) -> dict[str, dict[str, list[str]]]:
-    """Parse a systemd unit into ``{section: {key: [values]}}``.
-
-    Repeated ``Environment=`` lines keep every value in order.
-    """
+    """Parse a systemd unit into ``{section: {key: [values]}}``."""
     sections: dict[str, dict[str, list[str]]] = {}
     current: dict[str, list[str]] | None = None
     for raw_line in text.splitlines():
@@ -58,22 +50,37 @@ def parse_unit(text: str) -> dict[str, dict[str, list[str]]]:
     return sections
 
 
-def unit_value(sections: dict[str, dict[str, list[str]]], section: str, key: str) -> str:
+def unit_value(
+    sections: dict[str, dict[str, list[str]]], section: str, key: str
+) -> str:
     values = sections[section][key]
     assert len(values) == 1, f"{section}.{key} must appear exactly once"
     return values[0]
 
 
-def environment_value(sections: dict[str, dict[str, list[str]]], name: str) -> str:
+def environment_value(
+    sections: dict[str, dict[str, list[str]]], name: str
+) -> str:
     prefix = f"{name}="
-    values = [item for item in sections["Service"]["Environment"] if item.startswith(prefix)]
+    values = [
+        item
+        for item in sections["Service"]["Environment"]
+        if item.startswith(prefix)
+    ]
     assert len(values) == 1, f"Environment={name}=... must appear exactly once"
     return values[0][len(prefix):]
 
 
 # ---------------------------------------------------------------------------
-# systemd unit
+# one systemd unit
 # ---------------------------------------------------------------------------
+
+
+def test_legacy_split_unit_is_gone() -> None:
+    assert UNIT_PATH.is_file()
+    assert not (DEPLOY / "kimico-gateway.service").exists()
+    assert not (DEPLOY / "napcat" / "start.sh").exists()
+    assert not (DEPLOY / "napcat" / "compose.yaml").exists()
 
 
 def test_unit_has_restart_and_kill_policy() -> None:
@@ -92,20 +99,36 @@ def test_unit_ordering_and_logging() -> None:
     after = unit_value(sections, "Unit", "After")
     assert "network-online.target" in after
     assert "docker.service" in after
-    assert unit_value(sections, "Unit", "Wants") == "network-online.target"
+    wants = unit_value(sections, "Unit", "Wants")
+    assert "network-online.target" in wants
+    assert "docker.service" in wants
     assert unit_value(sections, "Service", "StandardOutput") == "journal"
     assert unit_value(sections, "Service", "StandardError") == "journal"
     assert unit_value(sections, "Install", "WantedBy") == "multi-user.target"
 
 
-def test_unit_runs_as_service_user_with_absolute_entrypoint() -> None:
+def test_unit_runs_bootstrap_then_gateway_as_service_user() -> None:
     sections = parse_unit(_read(UNIT_PATH))
     assert unit_value(sections, "Service", "User") == "ubuntu"
-    assert unit_value(sections, "Service", "WorkingDirectory") == "/opt/kimico-gateway"
-    exec_start = unit_value(sections, "Service", "ExecStart")
-    assert exec_start.startswith("/usr/bin/python3.12 ")
-    assert "-m kimico_gateway" in exec_start
-    assert "/etc/kimico-gateway/config.toml" in exec_start
+    assert unit_value(sections, "Service", "Group") == "ubuntu"
+    assert unit_value(sections, "Service", "SupplementaryGroups") == "docker"
+    assert unit_value(sections, "Service", "WorkingDirectory") == "/opt/kimico"
+
+    pres = sections["Service"]["ExecStartPre"]
+    assert pres[0].startswith("+/usr/bin/chown -R ubuntu:ubuntu ")
+    bootstrap_call = pres[1]
+    assert bootstrap_call.startswith("/usr/bin/python3.12 ")
+    assert "-m kimico_gateway.bootstrap" in bootstrap_call
+    assert "/etc/kimico/config.toml" in bootstrap_call
+
+    start = unit_value(sections, "Service", "ExecStart")
+    assert start.startswith("/usr/bin/python3.12 ")
+    assert "-m kimico_gateway" in start
+    assert "/var/lib/kimico/config.toml" in start
+
+    stop_post = unit_value(sections, "Service", "ExecStopPost")
+    assert "docker stop kimico-napcat" in stop_post
+    assert stop_post.startswith("-")
 
 
 def test_unit_environment_has_home_term_path_and_loopback_no_proxy() -> None:
@@ -113,6 +136,7 @@ def test_unit_environment_has_home_term_path_and_loopback_no_proxy() -> None:
     assert environment_value(sections, "HOME") == "/home/ubuntu"
     assert environment_value(sections, "TERM") == "xterm-256color"
     path = environment_value(sections, "PATH")
+    assert "/home/ubuntu/.kimi-code/bin" in path.split(":")
     assert "/home/ubuntu/.local/bin" in path.split(":")
     assert environment_value(sections, "PYTHONUNBUFFERED") == "1"
     no_proxy_hosts = environment_value(sections, "no_proxy").split(",")
@@ -121,78 +145,28 @@ def test_unit_environment_has_home_term_path_and_loopback_no_proxy() -> None:
 
 
 # ---------------------------------------------------------------------------
-# config template
+# minimal operator config
 # ---------------------------------------------------------------------------
 
 
-def test_config_template_loads_after_token_substitution(tmp_path: Path) -> None:
+def test_operator_config_only_needs_two_qqs() -> None:
+    raw = tomllib.loads(_read(CONFIG_TEMPLATE))
+    assert set(raw) == {"qq"}
+    assert set(raw["qq"]) == {"gateway_qq", "main_qq"}
+    assert raw["qq"]["gateway_qq"] != raw["qq"]["main_qq"]
+
+
+def test_operator_config_has_no_ports_or_tokens() -> None:
     text = _read(CONFIG_TEMPLATE)
-    assert 'access_token = "change-me"' not in text
-    assert SERVER_TOKEN_PLACEHOLDER in text
-    assert ONEBOT_TOKEN_PLACEHOLDER in text
-    rendered = text.replace(SERVER_TOKEN_PLACEHOLDER, "server-test-token")
-    rendered = rendered.replace(ONEBOT_TOKEN_PLACEHOLDER, "onebot-test-token")
-    path = tmp_path / "config.toml"
-    path.write_text(rendered, encoding="utf-8")
-
-    config = load_config(str(path))
-
-    assert config.server.host == "127.0.0.1"
-    assert config.server.port == 8080
-    assert config.server.path == "/cq"
-    assert config.onebot.api_base == API_BASE
-    assert config.tmux.kimico_command.startswith("/")
-    assert config.state.path == "/var/lib/kimico-gateway/state.json"
-    assert config.logging.level == "INFO"
-
-
-def test_config_template_enables_loopback_http_and_capture_defaults() -> None:
-    rendered = _read(CONFIG_TEMPLATE)
-    rendered = rendered.replace(SERVER_TOKEN_PLACEHOLDER, "server-test-token")
-    rendered = rendered.replace(ONEBOT_TOKEN_PLACEHOLDER, "onebot-test-token")
-    assert 'host = "127.0.0.1"' in rendered
-    assert 'port = 8080' in rendered
-    assert 'path = "/cq"' in rendered
-    assert "capture_lines = 5000" in rendered
-    assert "history_limit = 50000" in rendered
+    assert "access_token" not in text
+    assert re.search(r"^\s*port\s*=", text, re.MULTILINE) is None
+    assert SERVER_TOKEN_PLACEHOLDER not in text
+    assert ONEBOT_TOKEN_PLACEHOLDER not in text
 
 
 # ---------------------------------------------------------------------------
-# NapCat compose and OneBot
+# NapCat template
 # ---------------------------------------------------------------------------
-
-
-def _compose_lines() -> list[str]:
-    return [
-        line.split("#", 1)[0].rstrip()
-        for line in _read(COMPOSE_PATH).splitlines()
-    ]
-
-
-def test_compose_pins_image_and_uses_host_networking() -> None:
-    text = _read(COMPOSE_PATH)
-    lines = [line for line in _compose_lines() if line.strip()]
-    image_lines = [line.strip() for line in lines if line.strip().startswith("image:")]
-    assert len(image_lines) == 1
-    image = image_lines[0].split(":", 1)[1].strip().strip('"').strip("'")
-    assert image.startswith("mlikiowa/napcat-docker")
-    pinned_tag = re.fullmatch(r"mlikiowa/napcat-docker:[A-Za-z0-9._-]+", image)
-    pinned_digest = re.fullmatch(
-        r"mlikiowa/napcat-docker@sha256:[0-9a-f]{64}", image
-    )
-    assert pinned_tag or pinned_digest, f"image is not pinned: {image}"
-    assert not image.endswith(":latest")
-    assert "network_mode: host" in text
-    assert "restart: unless-stopped" in text
-    assert "container_name: napcat" in text
-
-
-def test_compose_mounts_config_and_exposes_no_host_ports() -> None:
-    text = "\n".join(_compose_lines())
-    assert "/opt/napcat/config:/app/napcat/config" in text
-    assert "0.0.0.0" not in text
-    assert "ports:" not in text
-    assert "ACCOUNT" in text
 
 
 def _onebot_config() -> dict:
@@ -206,9 +180,9 @@ def test_onebot_uses_array_messages_and_loopback_http_api() -> None:
     server = servers[0]
     assert server["enable"] is True
     assert server["host"] == "127.0.0.1"
-    assert server["port"] == 3000
     assert server["messagePostFormat"] == "array"
-    assert server["secret"] == ONEBOT_TOKEN_PLACEHOLDER
+    assert server["token"] == ONEBOT_TOKEN_PLACEHOLDER
+    assert "secret" not in server
 
 
 def test_onebot_reports_to_gateway_with_array_messages() -> None:
@@ -217,16 +191,10 @@ def test_onebot_reports_to_gateway_with_array_messages() -> None:
     assert len(clients) == 1
     client = clients[0]
     assert client["enable"] is True
-    assert client["url"] == REPORT_URL
     assert client["messagePostFormat"] == "array"
-    assert client["secret"] == SERVER_TOKEN_PLACEHOLDER
-
-
-def test_onebot_template_tokens_match_config_template() -> None:
-    onebot = _read(ONEBOT_TEMPLATE)
-    gateway = _read(CONFIG_TEMPLATE)
-    assert ONEBOT_TOKEN_PLACEHOLDER in onebot and ONEBOT_TOKEN_PLACEHOLDER in gateway
-    assert SERVER_TOKEN_PLACEHOLDER in onebot and SERVER_TOKEN_PLACEHOLDER in gateway
+    assert client["token"] == SERVER_TOKEN_PLACEHOLDER
+    assert "secret" not in client
+    assert client["url"].endswith("/cq")
 
 
 # ---------------------------------------------------------------------------
@@ -234,7 +202,7 @@ def test_onebot_template_tokens_match_config_template() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("script", [INSTALL_SCRIPT, UNINSTALL_SCRIPT, NAPCAT_START])
+@pytest.mark.parametrize("script", [INSTALL_SCRIPT, UNINSTALL_SCRIPT])
 def test_scripts_are_valid_bash(script: Path) -> None:
     assert script.is_file()
     result = subprocess.run(
@@ -245,41 +213,31 @@ def test_scripts_are_valid_bash(script: Path) -> None:
     assert result.returncode == 0, result.stderr
 
 
-def test_napcat_start_script_is_a_simple_host_network_launcher() -> None:
-    text = _read(NAPCAT_START)
-    assert "mlikiowa/napcat-docker:v4.8.0" in text
-    assert "--network host" in text
-    assert "-v \"${CONFIG_DIR}:/app/napcat/config\"" in text
-    assert "-v \"${QQ_DIR}:/app/.config/QQ\"" in text
-    assert "configure.py" in text
-    assert "--gateway-qq" in text
-    assert "KIMICO_COMMAND" in text
-    assert "docker start" in text
-    assert "ACCOUNT" in text
-    assert "--publish" not in text
-    assert re.search(r"docker run[\s\S]*?\s-p\s", text) is None
-
-
-def test_install_script_creates_directories_and_secures_config() -> None:
+def test_install_script_creates_one_service_and_secures_config() -> None:
     text = _read(INSTALL_SCRIPT)
-    assert "/etc/kimico-gateway" in text
-    assert "/var/lib/kimico-gateway" in text
-    assert "/opt/kimico-gateway" in text
+    assert "/etc/kimico" in text
+    assert "/var/lib/kimico" in text
+    assert "/opt/kimico" in text
+    assert 'SERVICE_NAME="kimico"' in text
+    assert "kimico-gateway" in text  # legacy unit is retired
     assert re.search(r"(-m 600|chmod 600)", text), "config must be mode 600"
     assert "systemctl daemon-reload" in text
     assert "enable --now" in text
     assert "--no-start" in text
     assert "config.toml.example" in text
+    assert "docker" in text
+    assert "kimico-napcat" in text
 
 
 def test_uninstall_script_keeps_data_unless_purge() -> None:
     text = _read(UNINSTALL_SCRIPT)
     assert "--purge" in text
-    assert "/etc/kimico-gateway" in text
-    assert "/var/lib/kimico-gateway" in text
-    assert "/opt/kimico-gateway" in text
+    assert "/etc/kimico" in text
+    assert "/var/lib/kimico" in text
+    assert "/opt/kimico" in text
     assert "systemctl disable --now" in text
     assert "systemctl daemon-reload" in text
+    assert "kimico-napcat" in text
 
 
 # ---------------------------------------------------------------------------
@@ -287,43 +245,30 @@ def test_uninstall_script_keeps_data_unless_purge() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_readme_covers_operator_topics() -> None:
+def test_readme_documents_single_service_flow() -> None:
     text = _read(README)
     required = [
         "主 QQ",
         "网关 QQ",
-        "风控",
+        "systemctl",
+        "kimico",
+        "gateway_qq",
+        "main_qq",
+        "端口",
+        "token",
+        "NapCat",
+        "docker logs",
+        "v4.8.124",
         "封号",
         "备份",
-        "升级",
         "卸载",
-        "600",
-        "HOME",
-        "TERM",
-        "PATH",
-        "no_proxy",
-        "扫码",
-        "OneBot",
-        "127.0.0.1:3000",
-        REPORT_URL,
-        "回环",
-        "KillMode=process",
-        "固定",
     ]
     missing = [topic for topic in required if topic not in text]
     assert not missing, f"README missing topics: {missing}"
 
 
-def test_readme_documents_pinned_image_assumption() -> None:
+def test_readme_no_longer_documents_two_services() -> None:
     text = _read(README)
-    assert "mlikiowa/napcat-docker" in text
-    assert "digest" in text.lower()
-    assert "假设" in text or "assumption" in text.lower()
-
-
-def test_readme_documents_service_environment_rationale() -> None:
-    text = _read(README)
-    assert "systemctl restart" in text
-    assert "PID" in text
-    assert "tmux" in text
-    assert "ubuntu:ubuntu" in text
+    assert "deploy/napcat/start.sh" not in text
+    assert "compose.yaml" not in text
+    assert "kimico-gateway.service" not in text
