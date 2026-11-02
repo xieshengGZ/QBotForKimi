@@ -14,3 +14,21 @@
 - [ ] A released stable block updates last-output time regardless of mirror state and is passed to the pipeline with the current generation.
 - [ ] The batch is flushed on quiet-window expiry even when no new lines were released.
 - [ ] A single-round exception is logged and the monitor continues to the next round.
+
+## Comments
+
+- W6-2 implementation complete.
+- Commit: `caca0d21b6ac584e7ecb66d09841974f44a2adfa` (`feat(main): monitor loop integration (12)`).
+- Files: `kimico_gateway/__main__.py` (added `RuntimeState` and `run_monitor_loop`; `main()` unchanged), `tests/test_monitor_loop.py` (12 new tests).
+- Verification (run in `/home/ubuntu/qq/.worktrees/12`):
+  - `/home/ubuntu/qq/.venv/bin/python -m pytest tests/test_monitor_loop.py -q` → 12 passed in 0.06s.
+  - `/home/ubuntu/qq/.venv/bin/python -m pytest tests/test_monitor_loop.py tests/test_walking_skeleton.py -q` → 18 passed in 1.14s.
+  - `/home/ubuntu/qq/.venv/bin/python -m pytest -q` → 283 passed in 17.02s.
+- Implementation notes:
+  - `run_monitor_loop` uses `LiveTailTracker` directly for baseline, redraw-aware diff, KMP overlap fallback, insert recovery, consecutive k=0 rebuild, stability, and tail delay, so `capture.py` is untouched.
+  - Round order is reset request → pane state/recovery → capture/tracker update → released lines update last-output and enter the pipeline with `epoch.current()` → `flush_if_due()`. `flush_if_due()` runs once every round, including early DEAD/MISSING/UNKNOWN rounds and after a logged exception.
+  - DEAD/MISSING skip capture for that round (per PRD §5); on successful recovery the tracker, pipeline batch, and baseline are reset. UNKNOWN only logs a warning and never calls recovery.
+  - Reset round clears the pipeline batch and tracker, then continues to capture so the next snapshot becomes the new baseline; nothing is emitted for the pre-reset state.
+- Unfinished / assumptions:
+  - `main()` still only loads config, installs signal handlers, and waits; assembling components and starting/joining the four threads remains the orchestration ticket, per this ticket's file scope.
+  - A `CaptureError` is logged at WARNING and other round exceptions at ERROR with traceback; both skip the rest of the round but keep the loop alive.
