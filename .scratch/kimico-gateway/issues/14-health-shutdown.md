@@ -4,15 +4,15 @@
 
 **Blocked by:** 13 (Main process wiring and status provider).
 
-**Status:** in-progress
+**Status:** done
 
-- [ ] A thread that exits unexpectedly is detected within one second, logged at CRITICAL, and causes exit code 5 after cleanup.
-- [ ] SIGTERM and SIGINT stop the HTTP server and input worker before the final state save.
-- [ ] The final mirror state is written after the input worker has stopped.
-- [ ] Thread joins time out after the configured grace period and log a warning without blocking shutdown forever.
-- [ ] Shutdown performs no tmux session kill, pane kill, or kimico kill.
-- [ ] A normal shutdown exits with code 0.
-- [ ] Shutdown during a recovery sleep returns promptly.
+- [x] A thread that exits unexpectedly is detected within one second, logged at CRITICAL, and causes exit code 5 after cleanup.
+- [x] SIGTERM and SIGINT stop the HTTP server and input worker before the final state save.
+- [x] The final mirror state is written after the input worker has stopped.
+- [x] Thread joins time out after the configured grace period and log a warning without blocking shutdown forever.
+- [x] Shutdown performs no tmux session kill, pane kill, or kimico kill.
+- [x] A normal shutdown exits with code 0.
+- [x] Shutdown during a recovery sleep returns promptly.
 
 ## Comments
 
@@ -32,3 +32,5 @@
   - The five-second grace period is a module constant; no configuration key or `config.py` change was introduced.
   - Thread-death handling is tested with controllable fake threads; SIGTERM/SIGINT ordering is tested through the signal-handler seam, and the real-subprocess walking-skeleton SIGTERM/SIGINT tests still exit 0 with empty stderr.
   - Ticket Status and acceptance checkboxes were left unchanged for the controller.
+
+- 2026-11-02 W8 controller: resumed the interrupted window, verified the tested tree is byte-identical for `kimico_gateway/` and `tests/`, merged `0258a54` (feature) to main with `git merge --ff-only`. Wave-end on main: `/home/ubuntu/qq/.venv/bin/python -m pytest -q` → 370 passed; `/home/ubuntu/qq/.venv/bin/python -m compileall -q kimico_gateway` → ok. No skipped/xfailed tests, no forbidden files, no runtime dependencies.
