@@ -251,6 +251,9 @@ def test_napcat_start_script_is_a_simple_host_network_launcher() -> None:
     assert "--network host" in text
     assert "-v \"${CONFIG_DIR}:/app/napcat/config\"" in text
     assert "-v \"${QQ_DIR}:/app/.config/QQ\"" in text
+    assert "configure.py" in text
+    assert "--gateway-qq" in text
+    assert "KIMICO_COMMAND" in text
     assert "docker start" in text
     assert "ACCOUNT" in text
     assert "--publish" not in text

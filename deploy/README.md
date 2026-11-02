@@ -164,10 +164,23 @@ sudo docker logs -f napcat     # 看二维码，扫码登录网关 QQ
 `start.sh` 会自动：
 
 1. 创建 `/opt/napcat/config` 和 `/opt/napcat/qq`；
-2. 首次运行启动固定镜像的 `napcat` 容器；
-3. 再次运行复用已有容器（未运行则 `docker start`），不会重复创建。
+2. **选一个空闲的 OneBot 端口**（默认优先配置里的端口，`3000` 被占用时改用 `13000+`），并同步写入网关 `onebot.api_base`；
+3. 如果 token 还是占位符，**自动生成随机 token**，同时写入网关配置和 NapCat 配置；
+4. 写入 `/opt/napcat/config/onebot11_<网关QQ>.json`（array 格式、上报地址、两侧 token 全部对齐）；
+5. 首次运行启动固定镜像的 `napcat` 容器；再次运行复用已有容器并重启以加载新配置；
+6. 如果 `kimico-gateway` 正在运行，自动重启它使新端口/token 生效。
 
-需要自定义时可用环境变量覆盖：
+需要自定义端口或 kimi 路径时：
+
+```bash
+sudo KIMICO_COMMAND=/home/ubuntu/.kimi-code/bin/kimi \
+     NAPCAT_HTTP_PORT=13000 \
+     ./deploy/napcat/start.sh <网关QQ号>
+```
+
+`start.sh` 只做参数对齐和容器启动；它不会登录 QQ，扫码步骤见 6.3。
+
+需要自定义镜像或目录时：
 
 ```bash
 sudo NAPCAT_IMAGE=mlikiowa/napcat-docker:v4.8.0 \
@@ -207,28 +220,30 @@ sudo docker logs -f napcat
 
 ### 6.4 OneBot v11 配置
 
-把 `deploy/napcat/onebot11.template.json` 复制到 NapCat 配置目录并改名为
-`onebot11_<网关QQ>.json`，替换两个 token 占位符：
+`start.sh` 已经自动写入 `/opt/napcat/config/onebot11_<网关QQ>.json`，通常不需要手工操作。它保证：
 
 | NapCat 项 | 值 | 对应网关配置 |
 |---|---|---|
-| HTTP 服务器地址/端口 | `127.0.0.1:3000` | `onebot.api_base = "http://127.0.0.1:3000"` |
-| HTTP 服务器 Access Token | `REPLACE_WITH_ONEBOT_ACCESS_TOKEN` | `onebot.access_token` |
+| HTTP 服务器地址/端口 | `127.0.0.1:<自动选择的空闲端口>` | `onebot.api_base = "http://127.0.0.1:<同一端口>"` |
+| HTTP 服务器 Access Token | 自动生成的随机 token | `onebot.access_token` |
 | HTTP POST 上报地址 | `http://127.0.0.1:8080/cq` | `server.path = "/cq"` |
-| POST 上报 Access Token | `REPLACE_WITH_SERVER_ACCESS_TOKEN` | `server.access_token` |
+| POST 上报 Access Token | 自动生成的随机 token | `server.access_token` |
 | 消息格式 | `array` | 网关只解析数组消息段 |
 | 上报类型 | 至少包含 message 事件 | — |
 
-两侧 token 必须一致；网关以 Bearer token 鉴权。修改配置后重启容器：
+如果手工部署，复制 `deploy/napcat/onebot11.template.json` 为
+`onebot11_<网关QQ>.json`，把两个 `REPLACE_WITH_*` 换成与网关配置相同的值，
+端口与 `onebot.api_base` 保持一致。两侧 token 必须一致；网关以 Bearer token 鉴权。
+修改配置后重启容器：
 
 ```bash
 sudo docker restart napcat
 ```
 
-连通性自测：
+连通性自测（端口用 `onebot.api_base` 里的实际端口）：
 
 ```bash
-curl -X POST http://127.0.0.1:3000/send_private_msg \
+curl -X POST http://127.0.0.1:<napcat端口>/send_private_msg \
   -H "Authorization: Bearer <onebot.access_token>" \
   -H "Content-Type: application/json" \
   -d '{"user_id":<主QQ>,"message":"gateway link ok","auto_escape":true}'
