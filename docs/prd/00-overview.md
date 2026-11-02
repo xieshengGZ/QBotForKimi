@@ -10,7 +10,7 @@
 ## 2. 非目标
 
 - 不修改 kimico 源码，不改其原生 IO。
-- 不做多会话池；Kimi 侧会话切换由用户发送 `/session`，网关原样转发、不解析。
+- 不做多会话池；Kimi 会话切换由用户发送 `/session`，网关原样转发、不解析。
 - 仅文本私聊；不支持群聊、图片、文件、语音。
 - 不做云端会话、Web 管理台、跨机调度。
 - `#code`（调用 Kimi Code API）为 P2，不进入本期。
@@ -18,7 +18,7 @@
 
 ## 3. 运行模型
 
-- 单机、单实例、单 tmux 会话，会话名固定由配置给出（默认 `kimico`）；会话内只跑一个 kimico 进程。
+- 单机、单实例、单 tmux 会话；tmux 会话名固定由配置给出（默认 `kimico`），会话内只跑一个 kimico 进程。
 - kimico 直接作为 pane 的启动命令运行，不经过交互式 shell。
 - tmux 设置 `remain-on-exit on`：kimico 退出后 pane 保留为 dead 状态，便于检测与原地重启。
 - 两个输入入口：本地终端 attach（由 tmux 直接接管）；手机 QQ 私聊经 NapCat → 网关。**网关是唯一的程序化注入组件**；本地输入不经过网关。
@@ -39,12 +39,14 @@ NapCat（Docker，--network host）
     │  tmux set-buffer / paste-buffer / send-keys（注入）
     │  tmux capture-pane（输出轮询）
     ▼
-tmux server ── 会话 kimico ── pane 运行 kimico 进程
+tmux server ── tmux 会话 kimico ── pane 运行 kimico 进程
     ▲
 本地终端 tmux attach（直连，不经过网关）
 ```
 
 ## 5. 术语表
+
+领域词汇以仓库根目录的 `GLOSSARY.md` 为准；下表是 PRD 内的快速索引，保留实现术语。
 
 | 术语 | 定义 |
 |---|---|
@@ -53,8 +55,11 @@ tmux server ── 会话 kimico ── pane 运行 kimico 进程
 | NapCat | QQ 协议端（无头 NTQQ），Docker 部署，提供 OneBot v11 接口 |
 | OneBot v11 | QQ 机器人接口标准；事件用 HTTP POST 上报，发消息用 HTTP API |
 | 主 QQ | 配置 `auth.main_qq` 指定的唯一有权控制网关的 QQ 号 |
+| 网关 QQ / 机器人 QQ | NapCat 登录的机器端 QQ 号；与主 QQ 是不同账号 |
+| tmux 会话 | tmux server 中承载 pane 的命名容器；本项目只使用一个 |
+| Kimi 会话 | 由 `/session` 切换的 Kimi 对话上下文 |
 | mirror | 手机端输出推送开关；on 时把稳定新增文本推送到 QQ |
-| 控制指令 | 以 `#` 开头的消息，仅网关处理，不转发给 kimico |
+| 控制指令 | 以 `#` 开头且不是 `##` 的消息，仅网关处理，不转发给 kimico |
 | 注入 | 网关通过 tmux buffer 把 QQ 消息文本送入 kimico 所在 pane 并回车 |
 | 基线 / 快照 | capture-pane 最近一次抓取的行列表；差分以它为基准 |
 | 新增行 | 本次快照相对上次快照、重叠区之后出现的行 |
@@ -62,11 +67,13 @@ tmux server ── 会话 kimico ── pane 运行 kimico 进程
 | 候选块 | 尚未达到稳定条件、仍在观察中的新增行集合 |
 | 回显 | 注入文本在终端中的原样显示，需要从推送内容中滤除 |
 | pane_dead | tmux 报告 pane 内进程已退出（remain-on-exit 下 pane 保留） |
-| 恢复 | pane dead 后按退避策略 respawn kimico 的过程 |
+| 恢复 | pane DEAD 时 respawn、tmux 会话 MISSING 时 recreate 的统称；recreate 会丢失 kimico 内存上下文 |
+| respawn | 在同一个 pane 内重新启动 kimico；仅 DEAD 使用 |
+| recreate | 重建 tmux 会话并启动 kimico；仅 MISSING 使用，会丢失上下文 |
 
 ## 6. 全局行为原则
 
-- **镜像语义**：mirror 仅控制 QQ 端能否收到 kimico 输出；控制指令回执、重启通知、告警始终发送，不受 mirror 影响；本地终端显示不受 mirror 影响。
+- **镜像语义**：mirror 仅控制 QQ 端能否收到 kimico 输出；控制指令回执、重启通知、告警始终进入控制 lane，不因输出溢出丢弃，投递为尽力而为；本地终端显示不受 mirror 影响。
 - **输入语义**：注入级串行，不做回合检测；连续消息按到达顺序依次注入。同一时刻只由一方输入，由操作人员保证，网关不检测本地输入状态。
 - **空消息语义**：`text.strip() == ""` 视为空消息，静默忽略、不注入、不回复；非空文本保留原有前后空白与换行注入。
 - **字面井号**：以 `##` 开头的消息用于发送字面 `#` 文本，网关去掉第一个 `#` 后原样注入；其余 `#` 开头按控制指令处理。
@@ -81,7 +88,7 @@ tmux server ── 会话 kimico ── pane 运行 kimico 进程
 |---|---|
 | 镜像延迟 | 普通对话 p95 ≤ 2s（从 kimico 输出稳定到 QQ 收到首段） |
 | 控制回执 | 输出 lane 积压 500 段时，`#status` 等控制回执 2s 内到达 |
-| 控制消息可靠性 | 控制 lane 不因输出溢出丢弃；`#mirror off`/`#clear` 只清输出 lane |
+| 控制消息可靠性 | 控制 lane 不因输出溢出丢弃；投递为尽力而为 |
 | 网关重启 | `systemctl restart kimico-gateway` 后 tmux/kimico PID 不变 |
 | 资源 | 24h 常驻内存增长 ≤ 20%；空闲 CPU ≤ 1%（单核） |
 | 可观测性 | 日志包含 capture k=0 次数、输出 lane 丢弃数、发送失败数、恢复次数；`#status` 暴露队列长度 |

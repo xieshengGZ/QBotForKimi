@@ -22,6 +22,7 @@
 ### 契约与文档修订
 
 - `#status` 改为 8 行：入站队列、控制队列、输出队列分开统计。
+- 术语澄清：区分 `tmux 会话` 与 `Kimi 会话`；恢复统称下区分 `respawn`（DEAD）与 `recreate`（MISSING）；控制 lane 明确为“入队保证、投递尽力而为”；新增根目录 `GLOSSARY.md`。
 - `OutboundQueue` 改为 `OutboundBus`；`MirrorSwitch` 保留，新增 `OutputEpoch`。
 - 新增配置：`mirror.batch_quiet_ms`、`mirror.batch_max_chars`、`mirror.echo_prefix_patterns`、`tmux.volatile_tail_lines`、`tmux.k0_rebuild_threshold`。
 - HTTP 接入改为单线程 `HTTPServer`，天然保证事件入队顺序；去掉多请求线程乱序风险。

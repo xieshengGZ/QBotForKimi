@@ -80,7 +80,7 @@ tmux send-keys -t =<session> C-m
 
 细则：
 
-- 回执**始终发送**，不受 mirror 开关影响；控制 lane 不因输出溢出丢弃。
+- 回执**始终进入控制 lane**，不因输出溢出丢弃；投递为尽力而为，不受 mirror 开关影响。
 - 注入成功**不回复 ACK**（静默）。
 - `mirror_switch.set` 触发 mirror 持久化（由 mirror 模块的回调完成，见 `16-mod-mirror.md`），本模块不直接触碰 state。
 - 分支 5/7 的顺序不可调整：先切开关/递增 generation，再清输出 lane，最后放回执；控制 lane 保证回执不被清掉。
