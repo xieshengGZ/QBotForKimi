@@ -269,7 +269,7 @@ def load_config(path: str) -> Config:
         mirror_raw,
         "mirror",
         "echo_prefix_patterns",
-        (r"^\s*[>›]\s*",),
+        (r"^\s*[>›❯]\s*",),
         errors,
     )
     if (

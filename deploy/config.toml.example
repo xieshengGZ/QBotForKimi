@@ -42,7 +42,7 @@ outbound_queue_max = 500
 batch_quiet_ms = 300
 batch_max_chars = 3000
 ignore_patterns = ["^\\s*$"]
-echo_prefix_patterns = ["^\\s*[>›]\\s*"]
+echo_prefix_patterns = ["^\\s*[>›❯]\\s*"]
 
 [recovery]
 backoff_seconds = [5, 15, 60]

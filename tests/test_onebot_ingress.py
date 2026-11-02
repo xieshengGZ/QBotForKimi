@@ -554,3 +554,39 @@ def test_server_full_queue_drops_and_busy_goes_to_control_lane(
     assert item is not None
     assert item.text == "当前繁忙，请稍后重试"
     assert item.lane is Lane.CONTROL
+
+
+def test_server_backlog_accepts_twenty_concurrent_requests(
+    make_server: Any,
+) -> None:
+    received: list[int] = []
+    lock = threading.Lock()
+
+    def on_event(event: PrivateMessageEvent) -> None:
+        with lock:
+            received.append(event.message_id)
+
+    _server, port = make_server(on_event)
+    barrier = threading.Barrier(20)
+    statuses: list[int] = []
+    errors: list[BaseException] = []
+
+    def worker(index: int) -> None:
+        try:
+            barrier.wait(timeout=10)
+            status, _headers, _body = request_json(
+                port, make_event(message_id=1000 + index), timeout=5
+            )
+            statuses.append(status)
+        except BaseException as exc:  # noqa: BLE001 - reported by the test
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(index,)) for index in range(20)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+
+    assert not errors, errors
+    assert statuses == [200] * 20
+    assert sorted(received) == list(range(1000, 1020))

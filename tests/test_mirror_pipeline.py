@@ -458,3 +458,12 @@ def test_pipeline_clear_drops_pending_lines() -> None:
     pipeline.flush_if_due(now=time.monotonic() + 61)
 
     assert drain(bus) == []
+
+
+def test_echo_kimi_chevron_prompt_prefix_is_stripped() -> None:
+    echo = EchoSuppressor(
+        prefix_patterns=compile_patterns([r"^\s*[>›❯]\s*"])
+    )
+    echo.register("只回复 RK-ACCEPT-OK")
+
+    assert echo.suppress(["❯ 只回复 RK-ACCEPT-OK"]) == []

@@ -84,6 +84,7 @@ EventCallback = Callable[[PrivateMessageEvent], None]
 
 class _IngressHTTPServer(HTTPServer):
     allow_reuse_address = True
+    request_queue_size = 64
 
     def __init__(
         self,

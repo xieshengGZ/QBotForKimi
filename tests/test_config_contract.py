@@ -129,7 +129,7 @@ def test_load_minimal_uses_documented_defaults(tmp_path: Path) -> None:
     assert config.mirror.batch_quiet_ms == 300
     assert config.mirror.batch_max_chars == 3000
     assert config.mirror.ignore_patterns == (r"^\s*$",)
-    assert config.mirror.echo_prefix_patterns == (r"^\s*[>›]\s*",)
+    assert config.mirror.echo_prefix_patterns == (r"^\s*[>›❯]\s*",)
 
     assert config.recovery.backoff_seconds == (5, 15, 60)
     assert config.recovery.max_attempts == 3
