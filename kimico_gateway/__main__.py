@@ -43,6 +43,8 @@ DEDUP_CAPACITY = 200
 CONTROL_SOFT_MAX = 100
 ECHO_WINDOW_SECONDS = 10.0
 ECHO_MAX_ENTRIES = 50
+HEALTH_CHECK_SECONDS = 1.0
+SHUTDOWN_JOIN_SECONDS = 5.0
 
 logger = logging.getLogger("kimico_gateway.__main__")
 
@@ -185,8 +187,9 @@ class Gateway:
 
     Construction binds the HTTP server, so a port failure surfaces as an
     ``OSError`` before any thread starts. ``start`` launches the HTTP, input,
-    monitor, and sender daemons; ``wait`` only parks the main thread until the
-    stop event is set.
+    monitor, and sender daemons; ``supervise`` watches their liveness every
+    second and performs the graceful shutdown sequence when a stop is
+    requested or a thread dies.
     """
 
     def __init__(
@@ -289,9 +292,61 @@ class Gateway:
             "sender": self._start_thread("gateway-sender", self._run_sender),
         }
 
+    def supervise(self) -> int:
+        """Watch thread liveness, then shut down; return the process code."""
+        failed = self._wait_for_thread_death()
+        self._shutdown()
+        return 5 if failed else 0
+
     def wait(self) -> int:
-        self.stop_event.wait()
-        return 0
+        """Backward-compatible alias for ``supervise``."""
+        return self.supervise()
+
+    def _wait_for_thread_death(self) -> bool:
+        while not self.stop_event.is_set():
+            for name, thread in self.threads.items():
+                if not thread.is_alive():
+                    logger.critical("thread died: %s", name)
+                    self.stop_event.set()
+                    return True
+            self.stop_event.wait(HEALTH_CHECK_SECONDS)
+        return False
+
+    def _shutdown(self) -> None:
+        """Stop intake, persist state, and join workers without touching tmux."""
+        self.stop_event.set()
+        try:
+            self.server.shutdown()
+        except Exception:
+            logger.exception("HTTP server shutdown failed")
+
+        input_thread = self.threads.get("input")
+        if input_thread is not None:
+            self._join_thread("input", input_thread)
+
+        try:
+            self.state_store.save(self.switch.is_on())
+        except Exception:
+            logger.exception("final state save failed")
+
+        for name in ("http", "monitor", "sender"):
+            thread = self.threads.get(name)
+            if thread is not None:
+                self._join_thread(name, thread)
+
+    def _join_thread(self, name: str, thread: threading.Thread) -> None:
+        logger.info("gateway shutdown: joining %s thread", name)
+        try:
+            thread.join(timeout=SHUTDOWN_JOIN_SECONDS)
+        except Exception:
+            logger.exception("failed to join %s thread", name)
+            return
+        if thread.is_alive():
+            logger.warning(
+                "%s thread did not stop within %gs",
+                name,
+                SHUTDOWN_JOIN_SECONDS,
+            )
 
     def _start_thread(self, name: str, target: Callable[[], None]):
         thread = self.thread_factory(target=target, name=name, daemon=True)
@@ -352,11 +407,10 @@ def run_gateway(
     install_signal_handlers: bool = True,
     on_ready: Callable[[Gateway], None] | None = None,
 ) -> int:
-    """Run the documented startup sequence and park until ``stop_event``.
+    """Run startup, supervise the threads, and return the process exit code.
 
-    Returns 0 after a stop request, 3 for a kimico preflight or tmux failure,
-    and 4 for an HTTP bind failure. Thread-death monitoring and graceful
-    shutdown belong to the follow-up orchestration ticket.
+    Returns 0 after a normal stop request, 3 for a kimico preflight or tmux
+    failure, 4 for an HTTP bind failure, and 5 after a worker thread dies.
     """
     if state_store is None:
         state_store = StateStore(config.state.path)
@@ -421,7 +475,7 @@ def run_gateway(
     logger.info("gateway ready: %d threads started", len(gateway.threads))
     if on_ready is not None:
         on_ready(gateway)
-    return gateway.wait()
+    return gateway.supervise()
 
 
 def _install_signal_handlers(stop_event: threading.Event) -> None:

@@ -49,12 +49,16 @@ class FakeThread:
         self.name = name
         self.daemon = daemon
         self.started = False
+        self.join_timeouts: list[float | None] = []
 
     def start(self) -> None:
         self.started = True
 
     def is_alive(self) -> bool:
         return False
+
+    def join(self, timeout: float | None = None) -> None:
+        self.join_timeouts.append(timeout)
 
 
 def thread_factory(created: list[FakeThread]):
