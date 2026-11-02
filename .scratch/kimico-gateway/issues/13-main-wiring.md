@@ -4,7 +4,7 @@
 
 **Blocked by:** 05 (Mirror state persistence), 07 (OneBot ingress and inbound queue), 09 (Control commands and status), 11 (Mirror pipeline, echo, and batching), 12 (Monitor loop integration).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] A valid startup loads configuration and state, preflights kimico, ensures the tmux session, binds the HTTP server, and starts all four threads.
 - [ ] A missing kimico command exits with code 3 and a clear stderr message before starting threads.
